@@ -135,6 +135,12 @@ form.addEventListener('submit', async (event) => {
   const twelveDataKey = twelveDataInput.value.trim() || backendKeys.twelveData;
   const openRouterKey = openRouterInput.value.trim() || backendKeys.openRouter;
 
+  // Read Configuration Options
+  const horizon = document.getElementById('config-horizon')?.value || '1 to 3 Months';
+  const riskProfile = document.getElementById('config-risk-profile')?.value || 'Balanced';
+  const outputsize = document.getElementById('config-outputsize')?.value || '90';
+  const maType = document.getElementById('config-ma-type')?.value || 'SMA20_50';
+
   if (!twelveDataKey || !openRouterKey) {
     const missing = [];
     if (!twelveDataKey) missing.push('Twelve Data');
@@ -157,15 +163,15 @@ form.addEventListener('submit', async (event) => {
     <div class="loading-box">
       <div class="spinner"></div>
       <div class="loading-text">CALCULATING QUANT INDICATORS & RUNNING SENIOR STRATEGIST MODEL FOR ${ticker}...</div>
-      <div class="loading-subtext">Computing SMA, MACD, RSI, ATR & Evaluating 6 Analysis Dimensions</div>
+      <div class="loading-subtext">Configured: ${horizon} Horizon | ${riskProfile} Risk Profile | ${outputsize} Sessions | ${maType.replace('_', '/')}</div>
     </div>
   `;
 
   try {
-    const priceData = await fetchPriceData(ticker, twelveDataKey);
-    const techIndicators = calculateTechnicalIndicators(priceData);
-    const evaluationJSON = await getSeniorStrategistAssessment(ticker, priceData, techIndicators, openRouterKey);
-    renderResults(ticker, priceData, techIndicators, evaluationJSON);
+    const priceData = await fetchPriceData(ticker, twelveDataKey, outputsize);
+    const techIndicators = calculateTechnicalIndicators(priceData, maType);
+    const evaluationJSON = await getSeniorStrategistAssessment(ticker, priceData, techIndicators, openRouterKey, { horizon, riskProfile, maType });
+    renderResults(ticker, priceData, techIndicators, evaluationJSON, { horizon, riskProfile, outputsize, maType });
   } catch (err) {
     results.innerHTML = `
       <div class="error-box">
@@ -176,8 +182,8 @@ form.addEventListener('submit', async (event) => {
 });
 
 // Twelve Data daily price history.
-async function fetchPriceData(ticker, apiKey) {
-  const url = `https://api.twelvedata.com/time_series?symbol=${ticker}&interval=1day&outputsize=90&apikey=${apiKey}`;
+async function fetchPriceData(ticker, apiKey, outputsize = '90') {
+  const url = `https://api.twelvedata.com/time_series?symbol=${ticker}&interval=1day&outputsize=${outputsize}&apikey=${apiKey}`;
   const response = await fetch(url);
 
   const body = await response.text();
@@ -206,18 +212,36 @@ async function fetchPriceData(ticker, apiKey) {
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
-// Technical Indicator Calculations
-function calculateTechnicalIndicators(data) {
+// Technical Indicator Calculations with dynamic MA selection
+function calculateTechnicalIndicators(data, maType = 'SMA20_50') {
   const closes = data.map(d => d.close);
   const highs = data.map(d => d.high);
   const lows = data.map(d => d.low);
-  const volumes = data.map(d => d.volume);
 
-  // SMA
-  const sma20 = calculateSMA(closes, 20);
-  const sma50 = calculateSMA(closes, 50);
+  let fastMA = [];
+  let slowMA = [];
+  let fastLabel = 'MA Fast';
+  let slowLabel = 'MA Slow';
 
-  // EMA
+  if (maType === 'EMA12_26') {
+    fastMA = calculateEMA(closes, 12);
+    slowMA = calculateEMA(closes, 26);
+    fastLabel = 'EMA 12';
+    slowLabel = 'EMA 26';
+  } else if (maType === 'SMA10_30') {
+    fastMA = calculateSMA(closes, 10);
+    slowMA = calculateSMA(closes, 30);
+    fastLabel = 'SMA 10';
+    slowLabel = 'SMA 30';
+  } else {
+    // Default SMA20_50
+    fastMA = calculateSMA(closes, 20);
+    slowMA = calculateSMA(closes, 50);
+    fastLabel = 'SMA 20';
+    slowLabel = 'SMA 50';
+  }
+
+  // EMA 12 & 26 for MACD
   const ema12 = calculateEMA(closes, 12);
   const ema26 = calculateEMA(closes, 26);
 
@@ -263,7 +287,7 @@ function calculateTechnicalIndicators(data) {
   const dailyVol = Math.sqrt(variance);
   const annualizedVol = dailyVol * Math.sqrt(252) * 100;
 
-  // Max Drawdown over 90D
+  // Max Drawdown over sample window
   let maxDrawdown = 0;
   let peak = closes[0];
   closes.forEach(price => {
@@ -273,8 +297,12 @@ function calculateTechnicalIndicators(data) {
   });
 
   return {
-    sma20,
-    sma50,
+    fastMA,
+    slowMA,
+    fastLabel,
+    slowLabel,
+    sma20: calculateSMA(closes, 20),
+    sma50: calculateSMA(closes, 50),
     ema12,
     ema26,
     macdLine,
@@ -386,13 +414,17 @@ function calculateATR(highs, lows, closes, period = 14) {
 }
 
 // Senior Equity Strategist System Prompt & OpenRouter integration
-async function getSeniorStrategistAssessment(ticker, priceData, tech, apiKey) {
+async function getSeniorStrategistAssessment(ticker, priceData, tech, apiKey, options = {}) {
   const first = priceData[0];
   const latest = priceData[priceData.length - 1];
   const pctChange = ((latest.close - first.close) / first.close) * 100;
 
-  const latestSMA20 = tech.sma20[tech.sma20.length - 1];
-  const latestSMA50 = tech.sma50[tech.sma50.length - 1];
+  const horizon = options.horizon || '1 to 3 Months';
+  const riskProfile = options.riskProfile || 'Balanced';
+  const maType = options.maType || 'SMA20_50';
+
+  const fastMAVal = tech.fastMA[tech.fastMA.length - 1];
+  const slowMAVal = tech.slowMA[tech.slowMA.length - 1];
   const latestRSI = tech.rsi14[tech.rsi14.length - 1];
   const latestMACD = tech.macdLine[tech.macdLine.length - 1];
   const latestSignal = tech.macdSignal[tech.macdSignal.length - 1];
@@ -409,6 +441,10 @@ async function getSeniorStrategistAssessment(ticker, priceData, tech, apiKey) {
   });
   const avgVol = totalVol / priceData.length;
 
+  let scoreThresholdDesc = 'Score >= 70 for BUY';
+  if (riskProfile === 'Conservative') scoreThresholdDesc = 'Score >= 75 for BUY (Strict Capital Preservation Mode)';
+  if (riskProfile === 'Aggressive') scoreThresholdDesc = 'Score >= 60 for BUY (Tactical Momentum Mode)';
+
   const promptSystem = `ROLE
 You are an institutional Senior Equity Strategist and Technical Market Analyst with 20 years of experience advising investment committees.
 You apply the analytical standards of a leading finance professor and an experienced institutional trader.
@@ -417,22 +453,27 @@ You are not a salesperson, motivational coach or financial influencer. You must 
 
 OBJECTIVE
 Evaluate the supplied financial and market data for an equity and produce a transparent technical research recommendation.
-The central question is: Should this equity be purchased at the stated assessment date and for the stated investment horizon?
+The central question is: Should this equity be purchased at the stated assessment date for an investment horizon of ${horizon}?
+
+USER STRATEGY CONFIGURATION:
+- Target Investment Horizon: ${horizon}
+- Selected Risk Model Profile: ${riskProfile} (${scoreThresholdDesc})
+- Moving Average Indicator Focus: ${tech.fastLabel} vs ${tech.slowLabel}
 
 CORE RULES
 1. Use only the data supplied in the user input.
 2. Never invent: prices, financial metrics, technical signals, news, support or resistance levels, price targets, probabilities, backtest results, company events, or macroeconomic developments.
 3. When material information is missing, note it in data_quality and adjust confidence.
 4. Treat all technical indicators as probabilistic signals rather than proof of future market performance.
-5. Issue a BUY recommendation only when several independent indicators provide consistent confirmation and total score >= 70.
+5. Issue a BUY recommendation only when several independent indicators provide consistent confirmation AND total score matches risk profile threshold (${scoreThresholdDesc}).
 6. Explicitly identify contradictory signals.
 7. Confidence represents the quality and consistency of the available evidence.
 8. All trading signals based on closing prices must be lagged by at least one trading period.
 
 DECISION RULES
 Total Score (0-100):
-- BUY: Score >= 70, no critical risk issue, positive trend & momentum.
-- WATCH: Score 55-69, contradictory signals or unconfirmed breakout.
+- BUY: Score meets or exceeds profile threshold (${scoreThresholdDesc}), no critical risk issue, positive trend & momentum.
+- WATCH: Score 55-69 (or below buy threshold), contradictory signals or unconfirmed breakout.
 - DO_NOT_BUY: Score < 55, materially negative trend/momentum or unfavorable risk profile.
 - INSUFFICIENT_DATA: Material data missing or unreliable.
 
@@ -447,7 +488,7 @@ JSON SCHEMA:
 {
   "ticker": "${ticker}",
   "assessment_timestamp": "${latest.date}",
-  "investment_horizon": "1 to 3 Months",
+  "investment_horizon": "${horizon}",
   "purchase_decision": "YES | NO",
   "recommendation": "BUY | WATCH | DO_NOT_BUY | INSUFFICIENT_DATA",
   "total_score": 0,
@@ -518,21 +559,23 @@ JSON SCHEMA:
 
   const userContext = `EVALUATION DATASET FOR ${ticker}:
 - Assessment Date: ${latest.date}
-- 90-Day Range: ${first.date} to ${latest.date} (${priceData.length} sessions)
+- Strategy Horizon: ${horizon}
+- Risk Profile Mode: ${riskProfile}
+- Historical Range: ${first.date} to ${latest.date} (${priceData.length} trading sessions)
 - Starting Close: $${first.close.toFixed(2)}
 - Latest Close: $${latest.close.toFixed(2)}
-- 90D Change: ${pctChange.toFixed(2)}%
-- 90D High: $${periodHigh.toFixed(2)}
-- 90D Low: $${periodLow.toFixed(2)}
-- Latest SMA(20): ${latestSMA20 ? '$' + latestSMA20.toFixed(2) : 'N/A'}
-- Latest SMA(50): ${latestSMA50 ? '$' + latestSMA50.toFixed(2) : 'N/A'}
+- Historical Change: ${pctChange.toFixed(2)}%
+- Period High: $${periodHigh.toFixed(2)}
+- Period Low: $${periodLow.toFixed(2)}
+- ${tech.fastLabel}: ${fastMAVal ? '$' + fastMAVal.toFixed(2) : 'N/A'}
+- ${tech.slowLabel}: ${slowMAVal ? '$' + slowMAVal.toFixed(2) : 'N/A'}
 - Latest RSI(14): ${latestRSI ? latestRSI.toFixed(2) : 'N/A'}
 - MACD Line: ${latestMACD !== null ? latestMACD.toFixed(4) : 'N/A'}
 - MACD Signal Line: ${latestSignal !== null ? latestSignal.toFixed(4) : 'N/A'}
 - MACD Histogram: ${latestHist !== null ? latestHist.toFixed(4) : 'N/A'}
 - ATR(14): ${latestATR !== null ? '$' + latestATR.toFixed(2) : 'N/A'}
 - Realized Volatility (Annualized): ${tech.annualizedVol.toFixed(2)}%
-- Maximum Drawdown (90D): ${tech.maxDrawdown.toFixed(2)}%
+- Maximum Drawdown (${priceData.length}D): ${tech.maxDrawdown.toFixed(2)}%
 - Latest Volume: ${latest.volume.toLocaleString()}
 - Average Daily Volume: ${Math.round(avgVol).toLocaleString()}
 
@@ -562,10 +605,10 @@ Analyze strictly according to the six dimensional scoring rules and return valid
   const data = await response.json();
   const rawContent = data.choices?.[0]?.message?.content ?? '';
 
-  return parseJSONResponse(rawContent, ticker, latest);
+  return parseJSONResponse(rawContent, ticker, latest, horizon);
 }
 
-function parseJSONResponse(rawContent, ticker, latest) {
+function parseJSONResponse(rawContent, ticker, latest, horizon = "1 to 3 Months") {
   let cleaned = rawContent.trim();
   // Strip markdown code fence if present
   if (cleaned.startsWith('```')) {
@@ -589,7 +632,7 @@ function parseJSONResponse(rawContent, ticker, latest) {
     return {
       ticker: ticker,
       assessment_timestamp: latest.date,
-      investment_horizon: "1 to 3 Months",
+      investment_horizon: horizon,
       purchase_decision: "NO",
       recommendation: "WATCH",
       total_score: 58,
@@ -607,7 +650,7 @@ function parseJSONResponse(rawContent, ticker, latest) {
         risk_and_volatility: { score: 6, assessment: "MODERATE", evidence: ["Standard equity volatility"] },
         market_and_company_context: { score: 5, assessment: "NEUTRAL", evidence: ["General market context"] }
       },
-      bull_case: ["Market price showing consolidation above 90-day lows."],
+      bull_case: ["Market price showing consolidation above recent lows."],
       bear_case: ["Unconfirmed trend breakout requires confirmation."],
       contradictory_signals: ["Neutral momentum vs sideways consolidation"],
       critical_exclusion_factors: [],
@@ -648,8 +691,8 @@ async function readOpenRouterError(response) {
   return [`(HTTP ${response.status})`, hint, message].filter(Boolean).join(' ');
 }
 
-// Render dynamic results with Interactive Charts and Senior Strategist Assessment
-function renderResults(ticker, priceData, tech, evalData) {
+// Render dynamic results with Interactive Charts, Tooltips, and Senior Strategist Assessment
+function renderResults(ticker, priceData, tech, evalData, options = {}) {
   const first = priceData[0];
   const latest = priceData[priceData.length - 1];
   const pctChange = ((latest.close - first.close) / first.close) * 100;
@@ -681,19 +724,22 @@ function renderResults(ticker, priceData, tech, evalData) {
     <div class="quant-decision-card ${recClass}">
       <div class="decision-header">
         <div class="decision-main">
-          <span class="decision-badge">${recIcon} ${rec}</span>
-          <div class="purchase-decision-box ${decision === 'YES' ? 'yes' : 'no'}">
+          <span class="decision-badge" data-tooltip="Research Recommendation Status: BUY (score >= 70+ & positive signals), WATCH (55-69 points), or DO_NOT_BUY (<55 points).">
+            ${recIcon} ${rec}
+          </span>
+          <div class="purchase-decision-box ${decision === 'YES' ? 'yes' : 'no'}" data-tooltip="Binary Execution Flag: Returns 'YES' strictly when the research rating is BUY and total score meets or exceeds the strategy threshold. Otherwise returns 'NO'.">
             <span class="purchase-label">PURCHASE DECISION:</span>
             <span class="purchase-value">${decision}</span>
+            <span class="kpi-info-icon">ⓘ</span>
           </div>
         </div>
         <div class="score-dial-group">
-          <div class="dial-item">
-            <span class="dial-label">QUANT SCORE</span>
+          <div class="dial-item" data-tooltip="Quant Score (0-100): Aggregates 6 dimensions: Trend (30), Momentum (25), RSI (15), Volume (10), Risk/Vol (10), Context (10).">
+            <span class="dial-label">QUANT SCORE <span class="kpi-info-icon">ⓘ</span></span>
             <span class="dial-value">${totalScore}<span class="dial-max">/100</span></span>
           </div>
-          <div class="dial-item">
-            <span class="dial-label">CONFIDENCE</span>
+          <div class="dial-item" data-tooltip="Confidence Score (%): Reflects market data completeness, absence of gaps, and alignment across independent indicators.">
+            <span class="dial-label">CONFIDENCE <span class="kpi-info-icon">ⓘ</span></span>
             <span class="dial-value">${confidence}%</span>
           </div>
         </div>
@@ -702,9 +748,52 @@ function renderResults(ticker, priceData, tech, evalData) {
       <p class="one-liner-summary">"${evalData.one_sentence_recommendation || 'No recommendation summary provided.'}"</p>
 
       <div class="decision-meta-row">
-        <span>📅 Assessment Date: <strong>${evalData.assessment_timestamp || latest.date}</strong></span>
-        <span>⏱ Horizon: <strong>${evalData.investment_horizon || '1-3 Months'}</strong></span>
-        <span>📊 Data Quality: <strong>${evalData.data_quality?.rating || 'MEDIUM'}</strong></span>
+        <span data-tooltip="Assessment Date: Closing price date evaluated. All indicators are lagged by at least 1 session to prevent look-ahead bias.">
+          📅 Date: <strong>${evalData.assessment_timestamp || latest.date}</strong> <span class="kpi-info-icon">ⓘ</span>
+        </span>
+        <span data-tooltip="Target Horizon: The holding duration for which this analysis is calibrated (${options.horizon || '1-3 Months'}).">
+          ⏱ Horizon: <strong>${evalData.investment_horizon || options.horizon || '1-3 Months'}</strong> <span class="kpi-info-icon">ⓘ</span>
+        </span>
+        <span data-tooltip="Risk Profile Mode: Strategy threshold profile configured (${options.riskProfile || 'Balanced'}).">
+          🛡️ Profile: <strong>${options.riskProfile || 'Balanced'}</strong> <span class="kpi-info-icon">ⓘ</span>
+        </span>
+        <span data-tooltip="Data Quality Rating: Evaluates split adjustments, dividend adjustments, data gaps, and price freshness.">
+          📊 Data Quality: <strong>${evalData.data_quality?.rating || 'MEDIUM'}</strong> <span class="kpi-info-icon">ⓘ</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Indicator Key Metrics Bar -->
+    <div class="kpi-summary-grid">
+      <div class="kpi-mini-card" data-tooltip="Latest Close Price: The most recent official daily closing price retrieved from Twelve Data.">
+        <span class="kpi-mini-label">LAST CLOSE <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">$${latest.close.toFixed(2)}</span>
+        <span class="kpi-mini-sub ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(pctChange).toFixed(2)}%</span>
+      </div>
+      <div class="kpi-mini-card" data-tooltip="${tech.fastLabel}: Short-term moving average. Prices above indicate short-term trend strength.">
+        <span class="kpi-mini-label">${tech.fastLabel.toUpperCase()} <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">${tech.fastMA[tech.fastMA.length - 1] ? '$' + tech.fastMA[tech.fastMA.length - 1].toFixed(2) : 'N/A'}</span>
+        <span class="kpi-mini-sub">Short Trend</span>
+      </div>
+      <div class="kpi-mini-card" data-tooltip="${tech.slowLabel}: Medium-term moving average. Acts as baseline support or resistance.">
+        <span class="kpi-mini-label">${tech.slowLabel.toUpperCase()} <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">${tech.slowMA[tech.slowMA.length - 1] ? '$' + tech.slowMA[tech.slowMA.length - 1].toFixed(2) : 'N/A'}</span>
+        <span class="kpi-mini-sub">Base Trend</span>
+      </div>
+      <div class="kpi-mini-card" data-tooltip="RSI (14): Relative Strength Index (0-100). Below 30 indicates oversold conditions; above 70 indicates overbought conditions.">
+        <span class="kpi-mini-label">RSI (14) <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">${tech.rsi14[tech.rsi14.length - 1] ? tech.rsi14[tech.rsi14.length - 1].toFixed(1) : 'N/A'}</span>
+        <span class="kpi-mini-sub">${tech.rsi14[tech.rsi14.length - 1] > 70 ? 'Overbought' : tech.rsi14[tech.rsi14.length - 1] < 30 ? 'Oversold' : 'Neutral'}</span>
+      </div>
+      <div class="kpi-mini-card" data-tooltip="ATR (14): Average True Range quantifying daily price volatility in dollar terms.">
+        <span class="kpi-mini-label">ATR (14) <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">${tech.atr14[tech.atr14.length - 1] ? '$' + tech.atr14[tech.atr14.length - 1].toFixed(2) : 'N/A'}</span>
+        <span class="kpi-mini-sub">Daily Volatility</span>
+      </div>
+      <div class="kpi-mini-card" data-tooltip="Realized Volatility: Annualized standard deviation of daily log returns over the sample period.">
+        <span class="kpi-mini-label">REALIZED VOL <span class="kpi-info-icon">ⓘ</span></span>
+        <span class="kpi-mini-value">${tech.annualizedVol.toFixed(1)}%</span>
+        <span class="kpi-mini-sub">Annualized</span>
       </div>
     </div>
 
@@ -713,13 +802,13 @@ function renderResults(ticker, priceData, tech, evalData) {
       <div class="chart-header">
         <div class="chart-title-group">
           <h3>📈 Interactive Technical Charts</h3>
-          <span class="chart-subtitle">Spot History & Multi-Indicator Analysis</span>
+          <span class="chart-subtitle">${options.outputsize || '90'} Sessions History & Multi-Indicator Overlays</span>
         </div>
         <div class="chart-tabs" id="chart-tab-group">
-          <button class="chart-tab active" data-tab="price">Price & SMAs</button>
-          <button class="chart-tab" data-tab="macd">MACD Momentum</button>
-          <button class="chart-tab" data-tab="rsi">RSI Indicator</button>
-          <button class="chart-tab" data-tab="volume">Volume Trend</button>
+          <button class="chart-tab active" data-tab="price" data-tooltip="Spot Price line overlaid with ${tech.fastLabel} and ${tech.slowLabel}">Price & MAs</button>
+          <button class="chart-tab" data-tab="macd" data-tooltip="MACD Line (12/26), Signal Line (9), and Histogram momentum bars">MACD Momentum</button>
+          <button class="chart-tab" data-tab="rsi" data-tooltip="RSI 14 oscillator trajectory with overbought (70) and oversold (30) levels">RSI Indicator</button>
+          <button class="chart-tab" data-tab="volume" data-tooltip="Daily volume bars colored by session price direction (Green = Up, Red = Down)">Volume Trend</button>
         </div>
       </div>
 
@@ -741,36 +830,38 @@ function renderResults(ticker, priceData, tech, evalData) {
 
     <!-- 6 Dimension Quant Scores -->
     <div class="dimensions-section">
-      <h3 class="section-heading">⚡ 6-Dimensional Quant Evaluation</h3>
+      <h3 class="section-heading">⚡ 6-Dimensional Quant Evaluation Matrix</h3>
       <div class="dimensions-grid">
-        ${renderDimensionCard('A. Trend', sigs.trend, 30)}
-        ${renderDimensionCard('B. Momentum', sigs.momentum, 25)}
-        ${renderDimensionCard('C. Relative Strength', sigs.relative_strength, 15)}
-        ${renderDimensionCard('D. Volume & Liquidity', sigs.volume_and_liquidity, 10)}
-        ${renderDimensionCard('E. Risk & Volatility', sigs.risk_and_volatility, 10)}
-        ${renderDimensionCard('F. Context', sigs.market_and_company_context, 10)}
+        ${renderDimensionCard('A. Trend', sigs.trend, 30, 'Price vs MAs, slope direction, moving average crossovers, and trend alignment.')}
+        ${renderDimensionCard('B. Momentum', sigs.momentum, 25, 'MACD line/signal crossover, histogram velocity, and acceleration rate.')}
+        ${renderDimensionCard('C. Relative Strength', sigs.relative_strength, 15, 'RSI(14) level, overbought/oversold boundaries, and momentum shifts.')}
+        ${renderDimensionCard('D. Volume & Liquidity', sigs.volume_and_liquidity, 10, 'Breakout volume confirmation, historical average comparison, and execution liquidity.')}
+        ${renderDimensionCard('E. Risk & Volatility', sigs.risk_and_volatility, 10, 'ATR magnitude, maximum drawdown depth, and defensibility of stop loss.')}
+        ${renderDimensionCard('F. Context', sigs.market_and_company_context, 10, 'Sector correlation, earnings risk, macroeconomic backdrop, and news sentiment.')}
       </div>
     </div>
 
     <!-- Trade Framework & Bull/Bear Cases -->
     <div class="trade-framework-grid">
       <div class="quant-card trade-plan-card">
-        <h4>🎯 Institutional Trade Framework</h4>
+        <h4 data-tooltip="Calculated trade execution parameters including optimal entry zone, stop loss, and price target.">
+          🎯 Institutional Trade Framework <span class="kpi-info-icon">ⓘ</span>
+        </h4>
         <div class="trade-params">
-          <div class="param-box">
-            <span class="param-label">ENTRY ZONE</span>
+          <div class="param-box" data-tooltip="Optimal Price Entry Zone: Calculated price corridor recommended for position entry.">
+            <span class="param-label">ENTRY ZONE <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val">${evalData.trade_framework?.potential_entry_zone || 'N/A'}</span>
           </div>
-          <div class="param-box">
-            <span class="param-label">INVALIDATION (STOP)</span>
+          <div class="param-box" data-tooltip="Invalidation Stop Level: Price level where the bullish trade thesis is invalidated and position must be closed.">
+            <span class="param-label">INVALIDATION (STOP) <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val stop">${evalData.trade_framework?.invalidation_level || 'N/A'}</span>
           </div>
-          <div class="param-box">
-            <span class="param-label">TARGET PRICE</span>
+          <div class="param-box" data-tooltip="Potential Price Target: Calculated resistance or ATR projection price target.">
+            <span class="param-label">TARGET PRICE <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val target">${evalData.trade_framework?.potential_price_target || 'N/A'}</span>
           </div>
-          <div class="param-box">
-            <span class="param-label">RISK / REWARD</span>
+          <div class="param-box" data-tooltip="Risk/Reward Ratio: Expected gain vs potential loss. Ratio of 1:2.0 or higher is institutional standard.">
+            <span class="param-label">RISK / REWARD <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val">${evalData.trade_framework?.risk_reward_ratio || 'N/A'}</span>
           </div>
         </div>
@@ -798,18 +889,20 @@ function renderResults(ticker, priceData, tech, evalData) {
 
     <!-- Red-Team Review & Committee Note -->
     <div class="quant-card redteam-card">
-      <h4>🛡️ Red-Team Risk Review & Committee Note</h4>
+      <h4 data-tooltip="Skeptical Red-Team critique challenging the primary recommendation to stress-test capital risk.">
+        🛡️ Red-Team Risk Review & Committee Note <span class="kpi-info-icon">ⓘ</span>
+      </h4>
       <div class="redteam-items">
-        <div class="rt-item">
-          <strong>Strongest Counterargument:</strong>
+        <div class="rt-item" data-tooltip="The most compelling argument against taking this position.">
+          <strong>Strongest Counterargument: <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.strongest_counterargument || 'None stated.'}</p>
         </div>
-        <div class="rt-item">
-          <strong>Most Decisive Next Data Point:</strong>
+        <div class="rt-item" data-tooltip="The single future news or price event most likely to flip or confirm the thesis.">
+          <strong>Most Decisive Next Data Point: <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.most_decisive_next_data_point || 'None stated.'}</p>
         </div>
-        <div class="rt-item">
-          <strong>Investment Committee Note:</strong>
+        <div class="rt-item" data-tooltip="Executive summary note for investment committee submission.">
+          <strong>Investment Committee Note: <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.investment_committee_note || 'None provided.'}</p>
         </div>
       </div>
@@ -839,11 +932,11 @@ function renderResults(ticker, priceData, tech, evalData) {
     });
   }
 
-  // Initialize Interactive Chart.js instances
+  // Initialize Interactive Chart.js instances with dynamic MA support
   initInteractiveCharts(priceData, tech);
 }
 
-function renderDimensionCard(title, dimData = {}, maxPoints) {
+function renderDimensionCard(title, dimData = {}, maxPoints, dimensionTooltip = '') {
   const score = dimData.score || 0;
   const assessment = dimData.assessment || 'NEUTRAL';
   const evidence = dimData.evidence || [];
@@ -854,9 +947,9 @@ function renderDimensionCard(title, dimData = {}, maxPoints) {
   if (['BEARISH', 'NEGATIVE', 'UNFAVOURABLE'].includes(assessment)) badgeColor = 'var(--rose-glow)';
 
   return `
-    <div class="dimension-card">
+    <div class="dimension-card" data-tooltip="${dimensionTooltip}">
       <div class="dim-header">
-        <span class="dim-title">${title}</span>
+        <span class="dim-title">${title} <span class="kpi-info-icon">ⓘ</span></span>
         <span class="dim-badge" style="color: ${badgeColor}; border-color: ${badgeColor}">${assessment}</span>
       </div>
       <div class="dim-score-row">
@@ -904,8 +997,8 @@ function initInteractiveCharts(priceData, tech) {
             pointHoverRadius: 5
           },
           {
-            label: 'SMA 20',
-            data: tech.sma20,
+            label: tech.fastLabel,
+            data: tech.fastMA,
             borderColor: '#f59e0b',
             borderWidth: 1.5,
             borderDash: [4, 4],
@@ -913,8 +1006,8 @@ function initInteractiveCharts(priceData, tech) {
             fill: false
           },
           {
-            label: 'SMA 50',
-            data: tech.sma50,
+            label: tech.slowLabel,
+            data: tech.slowMA,
             borderColor: purpleColor,
             borderWidth: 1.5,
             pointRadius: 0,

@@ -53,16 +53,79 @@
 
       <form id="ticker-form">
         <div class="form-group">
-          <label for="ticker">Asset Ticker Symbol</label>
+          <label for="ticker">
+            Asset Ticker Symbol 
+            <span class="kpi-info-icon" data-tooltip="Enter any valid US stock symbol (e.g. NVDA, AAPL, MSFT) or crypto pair (e.g. BTC/USD).">ⓘ</span>
+          </label>
           <div class="input-wrapper">
             <input id="ticker" name="ticker" type="text" placeholder="e.g. AAPL, NVDA, TSLA" required autocomplete="off" />
             <span class="input-badge">EQUITY/CRYPTO</span>
           </div>
         </div>
 
+        <!-- Strategy & Quant Configuration Panel -->
+        <details class="config-panel" id="config-dropdown">
+          <summary class="config-summary">
+            <span class="summary-title">⚙️ Strategy & Model Parameters</span>
+            <span class="summary-badge">CUSTOMIZE RISK & HORIZON</span>
+          </summary>
+          <div class="config-grid">
+            <div class="config-group">
+              <label for="config-horizon">
+                Investment Horizon
+                <span class="kpi-info-icon" data-tooltip="Determines target holding time and indicator sensitivity. Shorter horizons focus on short-term momentum; longer focus on structural trends.">ⓘ</span>
+              </label>
+              <select id="config-horizon" name="horizon" class="config-select">
+                <option value="1 to 3 Months" selected>1-3 Months (Medium Term)</option>
+                <option value="1 to 4 Weeks">1-4 Weeks (Tactical Short)</option>
+                <option value="3 to 12 Months">3-12 Months (Long Term)</option>
+              </select>
+            </div>
+
+            <div class="config-group">
+              <label for="config-risk-profile">
+                Risk Model Profile
+                <span class="kpi-info-icon" data-tooltip="Sets recommendation threshold rigor. Conservative requires 75+ points and strict stop loss; Tactical permits 60+ points for high-momentum setups.">ⓘ</span>
+              </label>
+              <select id="config-risk-profile" name="riskProfile" class="config-select">
+                <option value="Balanced" selected>Balanced (Buy >= 70 pts)</option>
+                <option value="Conservative">Conservative (Buy >= 75 pts)</option>
+                <option value="Aggressive">Tactical / Momentum (Buy >= 60 pts)</option>
+              </select>
+            </div>
+
+            <div class="config-group">
+              <label for="config-outputsize">
+                Historical Data Window
+                <span class="kpi-info-icon" data-tooltip="Number of daily trading bars pulled from Twelve Data for indicator calculations, volatility measurements, and chart rendering.">ⓘ</span>
+              </label>
+              <select id="config-outputsize" name="outputsize" class="config-select">
+                <option value="90" selected>90 Trading Sessions (~3 Mo)</option>
+                <option value="180">180 Trading Sessions (~6 Mo)</option>
+                <option value="45">45 Trading Sessions (~1.5 Mo)</option>
+              </select>
+            </div>
+
+            <div class="config-group">
+              <label for="config-ma-type">
+                Moving Average Overlay
+                <span class="kpi-info-icon" data-tooltip="Select primary moving average indicator lines overlaid on the price chart and trend evaluation matrix.">ⓘ</span>
+              </label>
+              <select id="config-ma-type" name="maType" class="config-select">
+                <option value="SMA20_50" selected>SMA 20 & SMA 50 (Standard)</option>
+                <option value="EMA12_26">EMA 12 & EMA 26 (Fast)</option>
+                <option value="SMA10_30">SMA 10 & SMA 30 (Short Trend)</option>
+              </select>
+            </div>
+          </div>
+        </details>
+
         <div class="form-group">
           <div class="label-row">
-            <label for="twelvedata-key">Twelve Data API Key</label>
+            <label for="twelvedata-key">
+              Twelve Data API Key
+              <span class="kpi-info-icon" data-tooltip="Required for fetching official OHLCV market data. Free key grants 800 API calls/day.">ⓘ</span>
+            </label>
             <span id="twelvedata-backend-status" class="backend-status-tag">Checking...</span>
           </div>
           <input id="twelvedata-key" name="twelvedata-key" type="password" placeholder="Twelve Data API Key" />
@@ -71,7 +134,10 @@
 
         <div class="form-group">
           <div class="label-row">
-            <label for="openrouter-key">OpenRouter API Key</label>
+            <label for="openrouter-key">
+              OpenRouter API Key
+              <span class="kpi-info-icon" data-tooltip="Powers the Senior Equity Strategist model analysis across 6 quantitative dimensions via Anthropic Claude 3.5 Sonnet.">ⓘ</span>
+            </label>
             <span id="openrouter-backend-status" class="backend-status-tag">Checking...</span>
           </div>
           <input id="openrouter-key" name="openrouter-key" type="password" placeholder="sk-or-v1-..." />
