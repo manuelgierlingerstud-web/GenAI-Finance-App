@@ -5,6 +5,112 @@
 const form = document.getElementById('ticker-form');
 const results = document.getElementById('results');
 const tickerInput = document.getElementById('ticker');
+const twelveDataInput = document.getElementById('twelvedata-key');
+const openRouterInput = document.getElementById('openrouter-key');
+const statusBadge = document.getElementById('status-badge');
+const statusText = document.getElementById('status-text');
+const twelveDataTag = document.getElementById('twelvedata-backend-status');
+const openRouterTag = document.getElementById('openrouter-backend-status');
+
+// Backend keys store
+const backendKeys = {
+  twelveData: '',
+  openRouter: ''
+};
+
+// Check backend API keys on page load
+async function checkBackendStatus() {
+  try {
+    const res = await fetch('/api/status');
+    if (!res.ok) throw new Error('Status endpoint unavailable');
+    const data = await res.json();
+
+    if (data.hasTwelveDataKey) {
+      backendKeys.twelveData = data.twelveDataKey || 'BACKEND_ACTIVE';
+      if (twelveDataTag) {
+        twelveDataTag.textContent = '✓ Backend Active';
+        twelveDataTag.className = 'backend-status-tag detected';
+      }
+      if (twelveDataInput) {
+        twelveDataInput.placeholder = 'Using Backend Key (or enter custom key)';
+      }
+    } else {
+      if (twelveDataTag) {
+        twelveDataTag.textContent = 'Key Needed';
+        twelveDataTag.className = 'backend-status-tag missing';
+      }
+    }
+
+    if (data.hasOpenRouterKey) {
+      backendKeys.openRouter = data.openRouterKey || 'BACKEND_ACTIVE';
+      if (openRouterTag) {
+        openRouterTag.textContent = '✓ Backend Active';
+        openRouterTag.className = 'backend-status-tag detected';
+      }
+      if (openRouterInput) {
+        openRouterInput.placeholder = 'Using Backend Key (or enter custom key)';
+      }
+    } else {
+      if (openRouterTag) {
+        openRouterTag.textContent = 'Key Needed';
+        openRouterTag.className = 'backend-status-tag missing';
+      }
+    }
+  } catch (err) {
+    console.warn('Backend status check failed:', err);
+    if (twelveDataTag) {
+      twelveDataTag.textContent = 'Manual Entry';
+      twelveDataTag.className = 'backend-status-tag missing';
+    }
+    if (openRouterTag) {
+      openRouterTag.textContent = 'Manual Entry';
+      openRouterTag.className = 'backend-status-tag missing';
+    }
+  } finally {
+    updateStatusBadge();
+  }
+}
+
+// Dynamically update upper-right status badge
+function updateStatusBadge() {
+  if (!statusBadge || !statusText) return;
+
+  const hasTD = Boolean(twelveDataInput.value.trim() || backendKeys.twelveData);
+  const hasOR = Boolean(openRouterInput.value.trim() || backendKeys.openRouter);
+
+  if (hasTD && hasOR) {
+    statusBadge.className = 'status-badge active';
+    statusText.textContent = 'SYSTEM ACTIVE';
+    statusBadge.title = 'System operational! Both Twelve Data and OpenRouter API keys are present.';
+  } else if (hasTD || hasOR) {
+    statusBadge.className = 'status-badge warning';
+    const missingName = !hasTD ? 'Twelve Data' : 'OpenRouter';
+    statusText.textContent = 'KEY MISSING (1/2)';
+    statusBadge.title = `Warning: Missing ${missingName} API key. Click to fill in.`;
+  } else {
+    statusBadge.className = 'status-badge error';
+    statusText.textContent = 'KEYS MISSING (0/2)';
+    statusBadge.title = 'Error: API keys missing. Click to configure.';
+  }
+}
+
+// Click status badge to jump to missing key field
+if (statusBadge) {
+  statusBadge.addEventListener('click', () => {
+    const hasTD = Boolean(twelveDataInput.value.trim() || backendKeys.twelveData);
+    const hasOR = Boolean(openRouterInput.value.trim() || backendKeys.openRouter);
+
+    if (!hasTD && twelveDataInput) {
+      twelveDataInput.focus();
+    } else if (!hasOR && openRouterInput) {
+      openRouterInput.focus();
+    }
+  });
+}
+
+// Add real-time listeners to key input fields
+if (twelveDataInput) twelveDataInput.addEventListener('input', updateStatusBadge);
+if (openRouterInput) openRouterInput.addEventListener('input', updateStatusBadge);
 
 // Add quick ticker click handlers
 document.querySelectorAll('.ticker-chip').forEach((chip) => {
@@ -17,12 +123,29 @@ document.querySelectorAll('.ticker-chip').forEach((chip) => {
   });
 });
 
+// Run initial backend status check
+checkBackendStatus();
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const ticker = tickerInput.value.trim().toUpperCase();
-  const twelveDataKey = document.getElementById('twelvedata-key').value.trim();
-  const openRouterKey = document.getElementById('openrouter-key').value.trim();
+  const twelveDataKey = twelveDataInput.value.trim() || backendKeys.twelveData;
+  const openRouterKey = openRouterInput.value.trim() || backendKeys.openRouter;
+
+  if (!twelveDataKey || !openRouterKey) {
+    const missing = [];
+    if (!twelveDataKey) missing.push('Twelve Data');
+    if (!openRouterKey) missing.push('OpenRouter');
+    
+    results.innerHTML = `
+      <div class="error-box">
+        <strong>⚡ KEYS REQUIRED:</strong> Please provide API key(s) for <strong>${missing.join(' and ')}</strong> in the form inputs or backend environment (.env).
+      </div>
+    `;
+    updateStatusBadge();
+    return;
+  }
 
   results.innerHTML = `
     <div class="loading-box">

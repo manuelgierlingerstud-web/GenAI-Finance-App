@@ -128,22 +128,95 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.4rem 0.85rem;
   border-radius: 20px;
   font-family: var(--font-mono);
   font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.status-badge.checking {
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: var(--text-muted);
+}
+.status-badge.checking .status-dot {
+  background-color: var(--text-muted);
+  box-shadow: 0 0 6px var(--text-muted);
+}
+
+.status-badge.active {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   color: var(--emerald-glow);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+.status-badge.active .status-dot {
+  background-color: var(--emerald-glow);
+  box-shadow: 0 0 10px var(--emerald-glow);
+  animation: pulse 2s infinite;
+}
+
+.status-badge.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #f59e0b;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+}
+.status-badge.warning .status-dot {
+  background-color: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: pulse 1.5s infinite;
+}
+
+.status-badge.error {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+  color: var(--rose-glow);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.15);
+}
+.status-badge.error .status-dot {
+  background-color: var(--rose-glow);
+  box-shadow: 0 0 10px var(--rose-glow);
+  animation: pulse 1s infinite;
 }
 
 .status-dot {
-  width: 7px;
-  height: 7px;
-  background-color: var(--emerald-glow);
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--emerald-glow);
-  animation: pulse 2s infinite;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.backend-status-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.25s ease;
+}
+
+.backend-status-tag.detected {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--emerald-glow);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.backend-status-tag.missing {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 @keyframes pulse {

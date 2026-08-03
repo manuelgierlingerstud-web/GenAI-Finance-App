@@ -27,9 +27,9 @@
           <p class="subtitle">QUANTITATIVE AI INTELLIGENCE & REAL-TIME ANALYTICS</p>
         </div>
       </div>
-      <div class="status-badge">
+      <div class="status-badge checking" id="status-badge" title="Checking backend API keys...">
         <span class="status-dot"></span>
-        <span class="status-text">SYSTEM ACTIVE</span>
+        <span class="status-text" id="status-text">CHECKING BACKEND...</span>
       </div>
     </div>
   </header>
@@ -61,14 +61,20 @@
         </div>
 
         <div class="form-group">
-          <label for="twelvedata-key">Twelve Data API Key</label>
-          <input id="twelvedata-key" name="twelvedata-key" type="password" placeholder="Twelve Data API Key" required />
+          <div class="label-row">
+            <label for="twelvedata-key">Twelve Data API Key</label>
+            <span id="twelvedata-backend-status" class="backend-status-tag">Checking...</span>
+          </div>
+          <input id="twelvedata-key" name="twelvedata-key" type="password" placeholder="Twelve Data API Key" />
           <p class="field-hint">Free US market data & ETFs. Get key at <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a></p>
         </div>
 
         <div class="form-group">
-          <label for="openrouter-key">OpenRouter API Key</label>
-          <input id="openrouter-key" name="openrouter-key" type="password" placeholder="sk-or-v1-..." required />
+          <div class="label-row">
+            <label for="openrouter-key">OpenRouter API Key</label>
+            <span id="openrouter-backend-status" class="backend-status-tag">Checking...</span>
+          </div>
+          <input id="openrouter-key" name="openrouter-key" type="password" placeholder="sk-or-v1-..." />
           <p class="field-hint">Powers LLM quant synthesis. Get key at <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></p>
         </div>
 
