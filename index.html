@@ -23,13 +23,22 @@
           </svg>
         </div>
         <div>
-          <h1>GenAI <span class="gradient-text">Finance</span> Terminal</h1>
-          <p class="subtitle">QUANTITATIVE AI INTELLIGENCE & REAL-TIME ANALYTICS</p>
+          <h1 id="app-title">GenAI <span class="gradient-text">Finance</span> Terminal</h1>
+          <p class="subtitle" id="app-subtitle">QUANTITATIVE AI INTELLIGENCE & REAL-TIME ANALYTICS</p>
         </div>
       </div>
-      <div class="status-badge checking" id="status-badge" title="Checking backend API keys...">
-        <span class="status-dot"></span>
-        <span class="status-text" id="status-text">CHECKING BACKEND...</span>
+
+      <div class="header-right-actions">
+        <!-- Language Switcher Button -->
+        <button type="button" id="lang-toggle-btn" class="lang-toggle-btn" title="Switch Language / Sprache wechseln">
+          <span class="lang-flag" id="lang-flag">🇩🇪</span>
+          <span class="lang-text" id="lang-text">DE</span>
+        </button>
+
+        <div class="status-badge checking" id="status-badge" title="Checking backend API keys...">
+          <span class="status-dot"></span>
+          <span class="status-text" id="status-text">CHECKING BACKEND...</span>
+        </div>
       </div>
     </div>
   </header>
