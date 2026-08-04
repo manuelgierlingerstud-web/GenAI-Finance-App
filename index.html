@@ -153,19 +153,32 @@
           <p class="field-hint">Powers LLM quant synthesis. Get key at <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></p>
         </div>
 
-        <div class="form-group" style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1rem;">
-          <label for="packet-upload">
-            Import Earnings Data (JSON, CSV or Link)
-            <span class="kpi-info-icon" data-tooltip="Upload JSON/CSV files or paste an HTTPS URL/link to an earnings packet to instantly generate the Institutional Management & Quant Briefing Note.">ⓘ</span>
+        <div class="form-group" style="margin-top: 1.25rem; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1.25rem;">
+          <label>
+            Import Earnings Packet (JSON, CSV or Remote URL)
+            <span class="kpi-info-icon" data-tooltip="Upload JSON/CSV earnings packets or paste a remote URL link to instantly synthesize institutional quant briefing notes.">ⓘ</span>
           </label>
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <input type="file" id="packet-upload" accept=".json,.csv" class="config-select" style="flex: 1; padding: 0.4rem; cursor: pointer; background: rgba(15, 23, 42, 0.6); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem;" />
+          
+          <!-- Styled Drag & Drop Upload Box -->
+          <div style="position: relative; border: 2px dashed rgba(59, 130, 246, 0.4); background: rgba(30, 41, 59, 0.4); border-radius: 10px; padding: 1.25rem; text-align: center; transition: all 0.2s ease; margin-bottom: 0.75rem;" id="dropzone-box">
+            <input type="file" id="packet-upload" accept=".json,.csv" style="position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;" />
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.4rem; pointer-events: none;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span style="font-weight: 600; font-size: 0.9rem; color: #f8fafc;" id="upload-label-text">Click or drop earnings JSON / CSV file</span>
+              <span style="font-size: 0.75rem; color: #94a3b8;" id="upload-subtext">Supports automated parsing for sentiment & financials</span>
+            </div>
           </div>
+
+          <!-- URL Fetch Bar -->
           <div style="display: flex; gap: 0.5rem;">
-            <input type="url" id="packet-url-input" placeholder="https://example.com/earnings-packet.json or .csv" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.6); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; font-size: 0.85rem;" />
-            <button type="button" id="load-url-btn" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap;">Load Link</button>
+            <input type="url" id="packet-url-input" placeholder="https://example.com/earnings-report.json" style="flex: 1; padding: 0.6rem 0.8rem; background: rgba(15, 23, 42, 0.8); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 8px; font-size: 0.85rem;" />
+            <button type="button" id="load-url-btn" style="padding: 0.6rem 1.1rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; white-space: nowrap; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);">Load Link</button>
           </div>
-          <p class="field-hint">Upload JSON/CSV or fetch directly from a remote link.</p>
+          <p class="field-hint" style="margin-top: 0.4rem;">Files or remote links automatically populate all quant models.</p>
         </div>
 
         <button type="submit" class="submit-btn" id="analyze-btn">

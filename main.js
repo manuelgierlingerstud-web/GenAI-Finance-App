@@ -1,4 +1,5 @@
 import { Chart, registerables } from 'chart.js';
+import html2pdf from 'html2pdf.js';
 Chart.register(...registerables);
 
 const form = document.getElementById('ticker-form');
@@ -595,6 +596,8 @@ if (packetUpload) {
   packetUpload.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    const uploadLabelText = document.getElementById('upload-label-text');
+    if (uploadLabelText) uploadLabelText.textContent = `Selected: ${file.name}`;
     const reader = new FileReader();
     const ext = file.name.split('.').pop().toLowerCase();
     reader.onload = (event) => {
@@ -1714,6 +1717,14 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
   const sigs = evalData.signal_assessment || {};
 
   results.innerHTML = `
+    <!-- PDF Export Action Bar -->
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 1.25rem;">
+      <button type="button" id="export-pdf-btn" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transition: all 0.2s ease;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        ${currentLang === 'de' ? '📥 Als PDF exportieren' : '📥 Export PDF Report'}
+      </button>
+    </div>
+
     <!-- Institutional Executive Briefing & Research Note for All Stocks -->
     ${renderExecutiveBriefing(ticker, priceData, tech, evalData, currentLang)}
 
@@ -2048,6 +2059,30 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
           targetView.style.display = 'block';
           targetView.classList.add('active');
         }
+      });
+    });
+  }
+
+  // Wire up PDF Export
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      exportPdfBtn.textContent = currentLang === 'de' ? 'Generiere PDF...' : 'Generating PDF...';
+      exportPdfBtn.disabled = true;
+      const opt = {
+        margin:       10,
+        filename:     `${ticker}_Institutional_Quant_Report.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().from(results).set(opt).save().then(() => {
+        exportPdfBtn.textContent = currentLang === 'de' ? '📥 Als PDF exportieren' : '📥 Export PDF Report';
+        exportPdfBtn.disabled = false;
+      }).catch(err => {
+        console.error('PDF export failed:', err);
+        exportPdfBtn.textContent = currentLang === 'de' ? '📥 Als PDF exportieren' : '📥 Export PDF Report';
+        exportPdfBtn.disabled = false;
       });
     });
   }
