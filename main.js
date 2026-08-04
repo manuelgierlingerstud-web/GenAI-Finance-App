@@ -73,7 +73,56 @@ const I18N = {
     chartTabMACD: 'MACD Momentum',
     chartTabRSI: 'RSI Indicator',
     chartTabVolume: 'Volume Trend',
-    chartTabEquity: 'Equity Curve (Backtest)'
+    chartTabEquity: 'Equity Curve (Backtest)',
+
+    // Tooltip Translations
+    recommendationTooltip: 'Research Recommendation Status: BUY (score >= 70+ & positive signals), WATCH (55-69 points), or DO_NOT_BUY (<55 points).',
+    decisionTooltip: "Binary Execution Flag: Returns 'YES' strictly when research rating is BUY and total score meets or exceeds strategy threshold.",
+    quantScoreTooltip: 'Quant Score (0-100): Aggregates 6 dimensions: Trend (30), Momentum (25), RSI (15), Volume (10), Risk/Vol (10), Context (10).',
+    confidenceTooltip: 'Confidence Score (%): Reflects market data completeness, absence of gaps, and alignment across independent indicators.',
+    assessmentDateTooltip: 'Assessment Date: Closing price date evaluated. All indicators are lagged by at least 1 session to prevent look-ahead bias.',
+    targetHorizonTooltip: 'Target Horizon: The holding duration for which this analysis is calibrated.',
+    riskProfileTooltip: 'Risk Profile Mode: Strategy threshold profile configured.',
+    dataQualityTooltip: 'Data Quality Rating: Evaluates split adjustments, dividend adjustments, data gaps, and price freshness.',
+
+    lastCloseTooltip: 'Latest Close Price: The most recent official daily closing price retrieved from Twelve Data.',
+    fastMATooltip: 'Short-term moving average line indicating immediate price direction.',
+    slowMATooltip: 'Medium-term moving average line acting as baseline support or resistance.',
+    rsiTooltip: 'RSI (14): Relative Strength Index (0-100). Below 30 indicates oversold conditions; above 70 indicates overbought conditions.',
+    atrTooltip: 'ATR (14): Average True Range quantifying daily price volatility in dollar terms.',
+    realizedVolTooltip: 'Realized Volatility: Annualized standard deviation of daily log returns over the sample period.',
+
+    chartTabPriceTooltip: 'Spot Price line overlaid with fast and slow moving averages.',
+    chartTabMACDTooltip: 'MACD Line (12/26), Signal Line (9), and Histogram momentum bars.',
+    chartTabRSITooltip: 'RSI 14 oscillator trajectory with overbought (70) and oversold (30) levels.',
+    chartTabVolumeTooltip: 'Daily volume bars colored by session price direction (Green = Up, Red = Down).',
+    chartTabEquityTooltip: 'Backtest Portfolio Equity Curve ($10,000 starting capital) vs Buy & Hold Benchmark.',
+
+    strategyReturnTooltip: 'Strategy Total Return: Cumulative net percentage gain/loss produced by the quantitative system over $10,000 initial capital.',
+    benchmarkReturnTooltip: 'Buy & Hold Benchmark Return: Cumulative performance of holding the asset passively over the exact same timeframe.',
+    alphaTooltip: 'Strategy Alpha: Excess return generated over the Buy & Hold benchmark. Positive indicates value addition by the quantitative rules.',
+    winRateTooltip: 'Win Rate (%): Percentage of executed trades that closed with a net profit after slippage.',
+    profitFactorTooltip: 'Profit Factor: Ratio of gross profits to gross losses. A profit factor above 1.5 indicates a strong statistical edge.',
+    sharpeRatioTooltip: 'Sharpe Ratio (Annualized): Risk-adjusted return measure comparing excess strategy return to annualized return volatility.',
+    maxDrawdownTooltip: 'Maximum Drawdown (%): Largest peak-to-trough decline experienced by the strategy portfolio during simulation.',
+    totalTradesTooltip: 'Total Executed Trades: Total number of closed trades executed during the historical sample window.',
+
+    dimTrendTooltip: 'Price vs MAs, slope direction, moving average crossovers, and trend alignment.',
+    dimMomentumTooltip: 'MACD line/signal crossover, histogram velocity, and acceleration rate.',
+    dimRSITooltip: 'RSI(14) level, overbought/oversold boundaries, and momentum shifts.',
+    dimVolumeTooltip: 'Breakout volume confirmation, historical average comparison, and execution liquidity.',
+    dimRiskTooltip: 'ATR magnitude, maximum drawdown depth, and defensibility of stop loss.',
+    dimContextTooltip: 'Sector correlation, earnings risk, macroeconomic backdrop, and news sentiment.',
+
+    tradeFrameworkTooltip: 'Calculated trade execution parameters including optimal entry zone, stop loss, and price target.',
+    entryZoneTooltip: 'Optimal Price Entry Zone: Calculated price corridor recommended for position entry.',
+    stopLossTooltip: 'Invalidation Stop Level: Price level where the bullish trade thesis is invalidated and position must be closed.',
+    targetPriceTooltip: 'Potential Price Target: Calculated resistance or ATR projection price target.',
+    riskRewardTooltip: 'Risk/Reward Ratio: Expected gain vs potential loss. Ratio of 1:2.0 or higher is institutional standard.',
+    redTeamTooltip: 'Skeptical Red-Team critique challenging the primary recommendation to stress-test capital risk.',
+    counterargumentTooltip: 'The most compelling argument against taking this position.',
+    nextDataPointTooltip: 'The single future news or price event most likely to flip or confirm the thesis.',
+    committeeNoteTooltip: 'Executive summary note for investment committee submission.'
   },
   de: {
     appTitle: 'GenAI <span class="gradient-text">Finanz</span> Terminal',
@@ -133,7 +182,56 @@ const I18N = {
     chartTabMACD: 'MACD Momentum',
     chartTabRSI: 'RSI Indikator',
     chartTabVolume: 'Volumen-Trend',
-    chartTabEquity: 'Kapitalkurve (Backtest)'
+    chartTabEquity: 'Kapitalkurve (Backtest)',
+
+    // Tooltip Translations
+    recommendationTooltip: 'Empfehlungs-Status: KAUFEN (Score >= 70+ & positive Signale), BEOBACHTEN (55-69 Punkte) oder NICHT_KAUFEN (<55 Punkte).',
+    decisionTooltip: 'Binäres Ausführungs-Flag: Liefert "JA" genau dann, wenn die Empfehlung KAUFEN ist und der Score den Schwellenwert erreicht.',
+    quantScoreTooltip: 'Quant-Score (0-100): Aggregiert 6 Dimensionen: Trend (30), Momentum (25), RSI (15), Volumen (10), Risiko/Vol (10), Kontext (10).',
+    confidenceTooltip: 'Konfidenz-Score (%): Spiegelt Vollständigkeit der Marktdaten, Lückenlosigkeit und Übereinstimmung der Indikatoren wider.',
+    assessmentDateTooltip: 'Bewertungsdatum: Datum des bewerteten Schlusskurses. Alle Indikatoren sind verzögert, um Look-Ahead-Bias zu vermeiden.',
+    targetHorizonTooltip: 'Ziel-Anlagehorizont: Die geplante Haltedauer, auf die diese Analyse kalibriert ist.',
+    riskProfileTooltip: 'Risikoprofil-Modus: Konfiguriertes Schwellenwert-Profil für Kaufempfehlungen.',
+    dataQualityTooltip: 'Datenqualitäts-Rating: Bewertet Aktiensplits, Dividendenanpassungen, Datenlücken und Frische.',
+
+    lastCloseTooltip: 'Letzter Schlusskurs: Der aktuellste offizielle Tages-Schlusskurs von Twelve Data.',
+    fastMATooltip: 'Kurzfristiger gleitender Durchschnitt. Kurse darüber zeigen kurzfristige Trendstärke.',
+    slowMATooltip: 'Mittelfristiger gleitender Durchschnitt als Basis-Unterstützung/-Widerstand.',
+    rsiTooltip: 'RSI (14): Relative Strength Index (0-100). Unter 30 gilt als überverkauft, über 70 als überkauft.',
+    atrTooltip: 'ATR (14): Average True Range quantifiziert die tägliche Kursvolatilität in Dollar.',
+    realizedVolTooltip: 'Realisierte Volatilität: Annualisierte Standardabweichung der täglichen Log-Renditen.',
+
+    chartTabPriceTooltip: 'Kassakurs-Linie überlagert mit schnellen und langsamen gleitenden Durchschnitten.',
+    chartTabMACDTooltip: 'MACD-Linie (12/26), Signallinie (9) und Histogramm-Momentumbalken.',
+    chartTabRSITooltip: 'RSI 14 Oszillator mit Bereichen für überkauft (70) und überverkauft (30).',
+    chartTabVolumeTooltip: 'Tägliches Volumen, gefärbt nach Kursrichtung (Grün = Steigend, Rot = Fallend).',
+    chartTabEquityTooltip: 'Backtest-Kapitalkurve ($10.000 Startkapital) im Vergleich zu Buy & Hold.',
+
+    strategyReturnTooltip: 'Strategie-Gesamtrendite: Kumulierter Nettogewinn/-verlust des Quant-Systems bei $10.000 Startkapital.',
+    benchmarkReturnTooltip: 'Buy & Hold Benchmark-Rendite: Kumulierte Wertentwicklung bei passivem Halten des Assets im selben Zeitraum.',
+    alphaTooltip: 'Strategie-Alpha: Überrendite gegenüber der Buy & Hold Benchmark. Positives Alpha zeigt Mehrwert der Quant-Regeln.',
+    winRateTooltip: 'Gewinnrate (%): Prozentualer Anteil der Trades, die nach Slippage mit einem Nettogewinn schlossen.',
+    profitFactorTooltip: 'Profit-Faktor: Verhältnis von Bruttogewinnen zu Bruttoverlusten. Ein Wert über 1,5 zeigt einen starken statistischen Vorteil.',
+    sharpeRatioTooltip: 'Sharpe-Ratio (Annualisiert): Risikoadjustiertes Renditemaß im Vergleich zur Renditevolatilität.',
+    maxDrawdownTooltip: 'Maximaler Drawdown (%): Größter kumulierter Wertverlust des Portfolio-Kapitals während der Simulation.',
+    totalTradesTooltip: 'Gesamte Trades: Anzahl der geschlossenen Trades im historischen Analysefenster.',
+
+    dimTrendTooltip: 'Kurs vs. MAs, Steigung, gleitende Durchschnitts-Crossover und Trend-Ausrichtung.',
+    dimMomentumTooltip: 'MACD Linie/Signal Crossover, Histogramm-Geschwindigkeit und Beschleunigung.',
+    dimRSITooltip: 'RSI 14 Niveau, überkauft/überverkauft Schwellen und Momentum-Divergenz.',
+    dimVolumeTooltip: 'Volumenbestätigung bei Ausbrüchen, Vergleich zum historischen Durchschnitt und Liquidität.',
+    dimRiskTooltip: 'ATR Volatilitätsverhältnis, maximale Drawdown-Tiefe und Vertretbarkeit des Stopp-Loss.',
+    dimContextTooltip: 'Sektor-Momentum, Ergebnisrisiko, makroökonomisches Umfeld und Nachrichten-Sentiment.',
+
+    tradeFrameworkTooltip: 'Berechnete Handelsausführungsparameter inklusive optimaler Einstiegszone, Stopp-Loss und Zielkurs.',
+    entryZoneTooltip: 'Optimale Einstiegszone: Empfohlener Kurskorridor für den Positionseinstieg.',
+    stopLossTooltip: 'Stopp-Loss-Niveau: Kursniveau, bei dem die Bullen-These ungültig wird und die Position geschlossen werden muss.',
+    targetPriceTooltip: 'Zielkurs: Berechneter Widerstand oder ATR-Projektions-Zielkurs.',
+    riskRewardTooltip: 'Chance-Risiko-Verhältnis: Erwarteter Gewinn vs. potenzieller Verlust. Verhältnis >= 1:2,0 ist institutioneller Standard.',
+    redTeamTooltip: 'Kritische Red-Team-Prüfung zur Infragestellung der Empfehlung und Stresstest des Kapitalrisikos.',
+    counterargumentTooltip: 'Das stärkste Argument gegen das Eingehen dieser Position.',
+    nextDataPointTooltip: 'Der entscheidendste künftige Datenpunkt oder Event zur Bestätigung/Widerlegung der These.',
+    committeeNoteTooltip: 'Zusammenfassende Notiz zur Vorlage beim Anlagekomitee.'
   }
 };
 
@@ -183,6 +281,52 @@ function applyLanguage(lang) {
   if (summaryTitle) summaryTitle.textContent = t.configTitle;
   const summaryBadge = document.querySelector('.summary-badge');
   if (summaryBadge) summaryBadge.textContent = t.configBadge;
+
+  const horizonLabel = document.querySelector('label[for="config-horizon"]');
+  if (horizonLabel) {
+    horizonLabel.childNodes[0].nodeValue = `${t.horizonLabel} `;
+    const tooltip = horizonLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.horizonTooltip);
+  }
+
+  const riskLabel = document.querySelector('label[for="config-risk-profile"]');
+  if (riskLabel) {
+    riskLabel.childNodes[0].nodeValue = `${t.riskProfileLabel} `;
+    const tooltip = riskLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.riskTooltip);
+  }
+
+  const windowLabel = document.querySelector('label[for="config-outputsize"]');
+  if (windowLabel) {
+    windowLabel.childNodes[0].nodeValue = `${t.windowLabel} `;
+    const tooltip = windowLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.windowTooltip);
+  }
+
+  const maLabel = document.querySelector('label[for="config-ma-type"]');
+  if (maLabel) {
+    maLabel.childNodes[0].nodeValue = `${t.maOverlayLabel} `;
+    const tooltip = maLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.maOverlayTooltip);
+  }
+
+  const tdLabel = document.querySelector('label[for="twelvedata-key"]');
+  if (tdLabel) {
+    tdLabel.childNodes[0].nodeValue = `${t.twelveDataLabel} `;
+    const tooltip = tdLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.twelveDataTooltip);
+  }
+  const tdHint = document.querySelector('#twelvedata-key + .field-hint');
+  if (tdHint) tdHint.innerHTML = `${t.twelveDataHint} <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a>`;
+
+  const orLabel = document.querySelector('label[for="openrouter-key"]');
+  if (orLabel) {
+    orLabel.childNodes[0].nodeValue = `${t.openRouterLabel} `;
+    const tooltip = orLabel.querySelector('.kpi-info-icon');
+    if (tooltip) tooltip.setAttribute('data-tooltip', t.openRouterTooltip);
+  }
+  const orHint = document.querySelector('#openrouter-key + .field-hint');
+  if (orHint) orHint.innerHTML = `${t.openRouterHint} <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a>`;
 
   // Form submit button
   const btnText = document.querySelector('.btn-text');
@@ -1217,21 +1361,21 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
     <div class="quant-decision-card ${recClass}">
       <div class="decision-header">
         <div class="decision-main">
-          <span class="decision-badge" data-tooltip="Research Recommendation Status: BUY (score >= 70+ & positive signals), WATCH (55-69 points), or DO_NOT_BUY (<55 points).">
+          <span class="decision-badge" data-tooltip="${t.recommendationTooltip}">
             ${recIcon} ${rec}
           </span>
-          <div class="purchase-decision-box ${decision === 'YES' ? 'yes' : 'no'}" data-tooltip="Binary Execution Flag: Returns 'YES' strictly when research rating is BUY and total score meets or exceeds strategy threshold.">
+          <div class="purchase-decision-box ${decision === 'YES' ? 'yes' : 'no'}" data-tooltip="${t.decisionTooltip}">
             <span class="purchase-label">${t.purchaseDecision}</span>
             <span class="purchase-value">${decision}</span>
             <span class="kpi-info-icon">ⓘ</span>
           </div>
         </div>
         <div class="score-dial-group">
-          <div class="dial-item" data-tooltip="Quant Score (0-100): Aggregates 6 dimensions: Trend (30), Momentum (25), RSI (15), Volume (10), Risk/Vol (10), Context (10).">
+          <div class="dial-item" data-tooltip="${t.quantScoreTooltip}">
             <span class="dial-label">${t.quantScore} <span class="kpi-info-icon">ⓘ</span></span>
             <span class="dial-value">${totalScore}<span class="dial-max">/100</span></span>
           </div>
-          <div class="dial-item" data-tooltip="Confidence Score (%): Reflects market data completeness, absence of gaps, and alignment across independent indicators.">
+          <div class="dial-item" data-tooltip="${t.confidenceTooltip}">
             <span class="dial-label">${t.confidence} <span class="kpi-info-icon">ⓘ</span></span>
             <span class="dial-value">${confidence}%</span>
           </div>
@@ -1241,16 +1385,16 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
       <p class="one-liner-summary">"${evalData.one_sentence_recommendation || 'No recommendation summary provided.'}"</p>
 
       <div class="decision-meta-row">
-        <span data-tooltip="Assessment Date: Closing price date evaluated. All indicators are lagged by at least 1 session to prevent look-ahead bias.">
+        <span data-tooltip="${t.assessmentDateTooltip}">
           📅 ${t.assessmentDate}: <strong>${evalData.assessment_timestamp || latest.date}</strong> <span class="kpi-info-icon">ⓘ</span>
         </span>
-        <span data-tooltip="Target Horizon: The holding duration for which this analysis is calibrated (${options.horizon || '1-3 Months'}).">
+        <span data-tooltip="${t.targetHorizonTooltip}">
           ⏱ ${t.targetHorizon}: <strong>${evalData.investment_horizon || options.horizon || '1-3 Months'}</strong> <span class="kpi-info-icon">ⓘ</span>
         </span>
-        <span data-tooltip="Risk Profile Mode: Strategy threshold profile configured (${options.riskProfile || 'Balanced'}).">
+        <span data-tooltip="${t.riskProfileTooltip}">
           🛡️ ${t.riskProfileMode}: <strong>${options.riskProfile || 'Balanced'}</strong> <span class="kpi-info-icon">ⓘ</span>
         </span>
-        <span data-tooltip="Data Quality Rating: Evaluates split adjustments, dividend adjustments, data gaps, and price freshness.">
+        <span data-tooltip="${t.dataQualityTooltip}">
           📊 ${t.dataQualityRating}: <strong>${evalData.data_quality?.rating || 'MEDIUM'}</strong> <span class="kpi-info-icon">ⓘ</span>
         </span>
       </div>
@@ -1258,32 +1402,32 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
 
     <!-- Quick Indicator Key Metrics Bar -->
     <div class="kpi-summary-grid">
-      <div class="kpi-mini-card" data-tooltip="Latest Close Price: The most recent official daily closing price retrieved from Twelve Data.">
+      <div class="kpi-mini-card" data-tooltip="${t.lastCloseTooltip}">
         <span class="kpi-mini-label">${t.lastClose} <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">$${latest.close.toFixed(2)}</span>
         <span class="kpi-mini-sub ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(pctChange).toFixed(2)}%</span>
       </div>
-      <div class="kpi-mini-card" data-tooltip="${tech.fastLabel}: Short-term moving average. Prices above indicate short-term trend strength.">
+      <div class="kpi-mini-card" data-tooltip="${tech.fastLabel}: ${t.fastMATooltip}">
         <span class="kpi-mini-label">${tech.fastLabel.toUpperCase()} <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">${tech.fastMA[tech.fastMA.length - 1] ? '$' + tech.fastMA[tech.fastMA.length - 1].toFixed(2) : 'N/A'}</span>
         <span class="kpi-mini-sub">${currentLang === 'de' ? 'Kurz-Trend' : 'Short Trend'}</span>
       </div>
-      <div class="kpi-mini-card" data-tooltip="${tech.slowLabel}: Medium-term moving average. Acts as baseline support or resistance.">
+      <div class="kpi-mini-card" data-tooltip="${tech.slowLabel}: ${t.slowMATooltip}">
         <span class="kpi-mini-label">${tech.slowLabel.toUpperCase()} <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">${tech.slowMA[tech.slowMA.length - 1] ? '$' + tech.slowMA[tech.slowMA.length - 1].toFixed(2) : 'N/A'}</span>
         <span class="kpi-mini-sub">${currentLang === 'de' ? 'Basis-Trend' : 'Base Trend'}</span>
       </div>
-      <div class="kpi-mini-card" data-tooltip="RSI (14): Relative Strength Index (0-100). Below 30 indicates oversold conditions; above 70 indicates overbought conditions.">
+      <div class="kpi-mini-card" data-tooltip="${t.rsiTooltip}">
         <span class="kpi-mini-label">RSI (14) <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">${tech.rsi14[tech.rsi14.length - 1] ? tech.rsi14[tech.rsi14.length - 1].toFixed(1) : 'N/A'}</span>
         <span class="kpi-mini-sub">${tech.rsi14[tech.rsi14.length - 1] > 70 ? (currentLang === 'de' ? 'Überkauft' : 'Overbought') : tech.rsi14[tech.rsi14.length - 1] < 30 ? (currentLang === 'de' ? 'Überverkauft' : 'Oversold') : 'Neutral'}</span>
       </div>
-      <div class="kpi-mini-card" data-tooltip="ATR (14): Average True Range quantifying daily price volatility in dollar terms.">
+      <div class="kpi-mini-card" data-tooltip="${t.atrTooltip}">
         <span class="kpi-mini-label">ATR (14) <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">${tech.atr14[tech.atr14.length - 1] ? '$' + tech.atr14[tech.atr14.length - 1].toFixed(2) : 'N/A'}</span>
         <span class="kpi-mini-sub">${currentLang === 'de' ? 'Tages-Volatilität' : 'Daily Volatility'}</span>
       </div>
-      <div class="kpi-mini-card" data-tooltip="Realized Volatility: Annualized standard deviation of daily log returns over the sample period.">
+      <div class="kpi-mini-card" data-tooltip="${t.realizedVolTooltip}">
         <span class="kpi-mini-label">REALIZED VOL <span class="kpi-info-icon">ⓘ</span></span>
         <span class="kpi-mini-value">${tech.annualizedVol.toFixed(1)}%</span>
         <span class="kpi-mini-sub">${currentLang === 'de' ? 'Annualisiert' : 'Annualized'}</span>
@@ -1298,11 +1442,11 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
           <span class="chart-subtitle">${options.outputsize || '90'} ${currentLang === 'de' ? 'Handelstage Historie & Multi-Indikatoren' : 'Sessions History & Multi-Indicator Overlays'}</span>
         </div>
         <div class="chart-tabs" id="chart-tab-group">
-          <button class="chart-tab active" data-tab="price">${t.chartTabPrice}</button>
-          <button class="chart-tab" data-tab="macd">${t.chartTabMACD}</button>
-          <button class="chart-tab" data-tab="rsi">${t.chartTabRSI}</button>
-          <button class="chart-tab" data-tab="volume">${t.chartTabVolume}</button>
-          <button class="chart-tab" data-tab="equity">${t.chartTabEquity}</button>
+          <button class="chart-tab active" data-tab="price" data-tooltip="${t.chartTabPriceTooltip}">${t.chartTabPrice}</button>
+          <button class="chart-tab" data-tab="macd" data-tooltip="${t.chartTabMACDTooltip}">${t.chartTabMACD}</button>
+          <button class="chart-tab" data-tab="rsi" data-tooltip="${t.chartTabRSITooltip}">${t.chartTabRSI}</button>
+          <button class="chart-tab" data-tab="volume" data-tooltip="${t.chartTabVolumeTooltip}">${t.chartTabVolume}</button>
+          <button class="chart-tab" data-tab="equity" data-tooltip="${t.chartTabEquityTooltip}">${t.chartTabEquity}</button>
         </div>
       </div>
 
@@ -1334,19 +1478,19 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
       </div>
 
       <div class="backtest-kpi-grid">
-        <div class="backtest-kpi-card" data-tooltip="Strategy Total Return: Cumulative net percentage gain/loss produced by the quantitative system over $10,000 initial capital.">
+        <div class="backtest-kpi-card" data-tooltip="${t.strategyReturnTooltip}">
           <span class="bk-label">${t.strategyReturn} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val ${bt.strategyReturnPct >= 0 ? 'positive' : 'negative'}">${bt.strategyReturnPct >= 0 ? '+' : ''}${bt.strategyReturnPct.toFixed(2)}%</span>
           <span class="bk-sub">$${bt.finalCapital.toFixed(2)} (${currentLang === 'de' ? 'Start $10.000' : 'Start $10,000'})</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Buy & Hold Benchmark Return: Cumulative performance of holding the asset passively over the exact same timeframe.">
+        <div class="backtest-kpi-card" data-tooltip="${t.benchmarkReturnTooltip}">
           <span class="bk-label">${t.benchmarkReturn} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val ${bt.benchmarkReturnPct >= 0 ? 'positive' : 'negative'}">${bt.benchmarkReturnPct >= 0 ? '+' : ''}${bt.benchmarkReturnPct.toFixed(2)}%</span>
           <span class="bk-sub">${currentLang === 'de' ? 'Passives Halten' : 'Passive Holding'}</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Strategy Alpha: Excess return generated over the Buy & Hold benchmark. Positive indicates value addition by the quantitative rules.">
+        <div class="backtest-kpi-card" data-tooltip="${t.alphaTooltip}">
           <span class="bk-label">${t.alpha} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val highlight">${bt.alphaPct >= 0 ? '+' : ''}${bt.alphaPct.toFixed(2)}%</span>
           <span class="bk-sub">
@@ -1354,31 +1498,31 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
           </span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Win Rate (%): Percentage of executed trades that closed with a net profit after slippage.">
+        <div class="backtest-kpi-card" data-tooltip="${t.winRateTooltip}">
           <span class="bk-label">${t.winRate} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val">${bt.winRatePct.toFixed(1)}%</span>
           <span class="bk-sub">${bt.winningTradesCount} ${currentLang === 'de' ? 'Gewonnen' : 'Wins'} / ${bt.losingTradesCount} ${currentLang === 'de' ? 'Verloren' : 'Losses'}</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Profit Factor: Ratio of gross profits to gross losses. A profit factor above 1.5 indicates a strong statistical edge.">
+        <div class="backtest-kpi-card" data-tooltip="${t.profitFactorTooltip}">
           <span class="bk-label">${t.profitFactor} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val">${bt.profitFactor.toFixed(2)}</span>
           <span class="bk-sub">${bt.profitFactor >= 1.5 ? (currentLang === 'de' ? 'Starker Edge (>=1.5)' : 'Strong Edge (>=1.5)') : (currentLang === 'de' ? 'Moderater Edge' : 'Moderate Edge')}</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Sharpe Ratio (Annualized): Risk-adjusted return measure comparing excess strategy return to annualized return volatility.">
+        <div class="backtest-kpi-card" data-tooltip="${t.sharpeRatioTooltip}">
           <span class="bk-label">${t.sharpeRatio} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val">${bt.sharpeRatio.toFixed(2)}</span>
           <span class="bk-sub">${currentLang === 'de' ? 'Risikoadjustiert' : 'Risk-Adjusted'}</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Maximum Drawdown (%): Largest peak-to-trough decline experienced by the strategy portfolio during simulation.">
+        <div class="backtest-kpi-card" data-tooltip="${t.maxDrawdownTooltip}">
           <span class="bk-label">${t.maxDrawdown} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val negative">-${bt.maxDrawdown.toFixed(2)}%</span>
           <span class="bk-sub">${currentLang === 'de' ? 'Maximaler Verlust' : 'Max Capital Dip'}</span>
         </div>
 
-        <div class="backtest-kpi-card" data-tooltip="Total Executed Trades: Total number of closed trades executed during the historical sample window.">
+        <div class="backtest-kpi-card" data-tooltip="${t.totalTradesTooltip}">
           <span class="bk-label">${t.totalTrades} <span class="kpi-info-icon">ⓘ</span></span>
           <span class="bk-val">${bt.totalTrades}</span>
           <span class="bk-sub">${currentLang === 'de' ? 'Simulierte Ausführungen' : 'Executed Orders'}</span>
@@ -1448,35 +1592,35 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
     <div class="dimensions-section">
       <h3 class="section-heading">⚡ ${currentLang === 'de' ? '6-Dimensionale Quant-Evaluierungsmatrix' : '6-Dimensional Quant Evaluation Matrix'}</h3>
       <div class="dimensions-grid">
-        ${renderDimensionCard('A. Trend', sigs.trend, 30, 'Price vs MAs, slope direction, moving average crossovers, and trend alignment.')}
-        ${renderDimensionCard('B. Momentum', sigs.momentum, 25, 'MACD line/signal crossover, histogram velocity, and acceleration rate.')}
-        ${renderDimensionCard('C. Relative Strength', sigs.relative_strength, 15, 'RSI(14) level, overbought/oversold boundaries, and momentum shifts.')}
-        ${renderDimensionCard('D. Volume & Liquidity', sigs.volume_and_liquidity, 10, 'Breakout volume confirmation, historical average comparison, and execution liquidity.')}
-        ${renderDimensionCard('E. Risk & Volatility', sigs.risk_and_volatility, 10, 'ATR magnitude, maximum drawdown depth, and defensibility of stop loss.')}
-        ${renderDimensionCard('F. Context', sigs.market_and_company_context, 10, 'Sector correlation, earnings risk, macroeconomic backdrop, and news sentiment.')}
+        ${renderDimensionCard('A. Trend', sigs.trend, 30, t.dimTrendTooltip)}
+        ${renderDimensionCard('B. Momentum', sigs.momentum, 25, t.dimMomentumTooltip)}
+        ${renderDimensionCard('C. Relative Strength', sigs.relative_strength, 15, t.dimRSITooltip)}
+        ${renderDimensionCard('D. Volume & Liquidity', sigs.volume_and_liquidity, 10, t.dimVolumeTooltip)}
+        ${renderDimensionCard('E. Risk & Volatility', sigs.risk_and_volatility, 10, t.dimRiskTooltip)}
+        ${renderDimensionCard('F. Context', sigs.market_and_company_context, 10, t.dimContextTooltip)}
       </div>
     </div>
 
     <!-- Trade Framework & Bull/Bear Cases -->
     <div class="trade-framework-grid">
       <div class="quant-card trade-plan-card">
-        <h4 data-tooltip="Calculated trade execution parameters including optimal entry zone, stop loss, and price target.">
+        <h4 data-tooltip="${t.tradeFrameworkTooltip}">
           🎯 ${currentLang === 'de' ? 'Institutionelles Handels-Framework' : 'Institutional Trade Framework'} <span class="kpi-info-icon">ⓘ</span>
         </h4>
         <div class="trade-params">
-          <div class="param-box" data-tooltip="Optimal Price Entry Zone: Calculated price corridor recommended for position entry.">
+          <div class="param-box" data-tooltip="${t.entryZoneTooltip}">
             <span class="param-label">${currentLang === 'de' ? 'EINSTIEGSZONE' : 'ENTRY ZONE'} <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val">${evalData.trade_framework?.potential_entry_zone || 'N/A'}</span>
           </div>
-          <div class="param-box" data-tooltip="Invalidation Stop Level: Price level where the bullish trade thesis is invalidated and position must be closed.">
+          <div class="param-box" data-tooltip="${t.stopLossTooltip}">
             <span class="param-label">${currentLang === 'de' ? 'STOPP-LOSS' : 'INVALIDATION (STOP)'} <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val stop">${evalData.trade_framework?.invalidation_level || 'N/A'}</span>
           </div>
-          <div class="param-box" data-tooltip="Potential Price Target: Calculated resistance or ATR projection price target.">
+          <div class="param-box" data-tooltip="${t.targetPriceTooltip}">
             <span class="param-label">${currentLang === 'de' ? 'ZIELKURS' : 'TARGET PRICE'} <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val target">${evalData.trade_framework?.potential_price_target || 'N/A'}</span>
           </div>
-          <div class="param-box" data-tooltip="Risk/Reward Ratio: Expected gain vs potential loss. Ratio of 1:2.0 or higher is institutional standard.">
+          <div class="param-box" data-tooltip="${t.riskRewardTooltip}">
             <span class="param-label">CHANCE/RISIKO <span class="kpi-info-icon">ⓘ</span></span>
             <span class="param-val">${evalData.trade_framework?.risk_reward_ratio || 'N/A'}</span>
           </div>
@@ -1505,19 +1649,19 @@ function renderResults(ticker, priceData, tech, evalData, options = {}) {
 
     <!-- Red-Team Review & Committee Note -->
     <div class="quant-card redteam-card">
-      <h4 data-tooltip="Skeptical Red-Team critique challenging the primary recommendation to stress-test capital risk.">
+      <h4 data-tooltip="${t.redTeamTooltip}">
         🛡️ ${currentLang === 'de' ? 'Red-Team Risikoprüfung & Komitee-Notiz' : 'Red-Team Risk Review & Committee Note'} <span class="kpi-info-icon">ⓘ</span>
       </h4>
       <div class="redteam-items">
-        <div class="rt-item" data-tooltip="The most compelling argument against taking this position.">
+        <div class="rt-item" data-tooltip="${t.counterargumentTooltip}">
           <strong>${currentLang === 'de' ? 'Stärkstes Gegenargument:' : 'Strongest Counterargument:'} <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.strongest_counterargument || 'None stated.'}</p>
         </div>
-        <div class="rt-item" data-tooltip="The single future news or price event most likely to flip or confirm the thesis.">
+        <div class="rt-item" data-tooltip="${t.nextDataPointTooltip}">
           <strong>${currentLang === 'de' ? 'Entscheidendster nächster Datenpunkt:' : 'Most Decisive Next Data Point:'} <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.most_decisive_next_data_point || 'None stated.'}</p>
         </div>
-        <div class="rt-item" data-tooltip="Executive summary note for investment committee submission.">
+        <div class="rt-item" data-tooltip="${t.committeeNoteTooltip}">
           <strong>${currentLang === 'de' ? 'Anlagekomitee Notiz:' : 'Investment Committee Note:'} <span class="kpi-info-icon">ⓘ</span></strong>
           <p>${evalData.investment_committee_note || 'None provided.'}</p>
         </div>

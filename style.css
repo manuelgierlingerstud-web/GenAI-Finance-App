@@ -23,15 +23,22 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(75px + env(safe-area-inset-top, 0px));
+}
+
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   background-color: var(--bg-dark);
   color: var(--text-main);
   font-family: var(--font-sans);
   line-height: 1.6;
   position: relative;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Background FX */
@@ -65,13 +72,19 @@ body {
 
 /* Header */
 .app-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(8, 11, 17, 0.8);
-  backdrop-filter: blur(16px);
-  padding: 1.25rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 11, 17, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding-top: max(1rem, env(safe-area-inset-top, 1rem));
+  padding-bottom: 1rem;
+  padding-left: max(1.5rem, env(safe-area-inset-left, 1.5rem));
+  padding-right: max(1.5rem, env(safe-area-inset-right, 1.5rem));
   position: sticky;
   top: 0;
   z-index: 50;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s ease;
 }
 
 .header-content {
@@ -1429,6 +1442,226 @@ input::placeholder {
 
 .pnl-pos { color: var(--emerald-glow); font-weight: bold; }
 .pnl-neg { color: var(--rose-glow); font-weight: bold; }
+
+/* ==========================================================================
+   iPhone & Mobile Responsive Optimization (Safe Area & Sticky Header Fixes)
+   ========================================================================== */
+
+/* Scroll clearance so content doesn't get covered by sticky header when target scrolling */
+.glass-panel,
+.quant-decision-card,
+.chart-container-card,
+.dimensions-section,
+.quant-card,
+.advice-section {
+  scroll-margin-top: calc(75px + env(safe-area-inset-top, 0px));
+}
+
+@media (max-width: 640px) {
+  /* Compact Header for iPhone Screens */
+  .app-header {
+    padding-top: max(0.6rem, env(safe-area-inset-top, 0.6rem));
+    padding-bottom: 0.6rem;
+    padding-left: max(0.85rem, env(safe-area-inset-left, 0.85rem));
+    padding-right: max(0.85rem, env(safe-area-inset-right, 0.85rem));
+  }
+
+  .header-content {
+    gap: 0.5rem;
+  }
+
+  .brand {
+    gap: 0.5rem;
+  }
+
+  .logo-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+  }
+
+  .logo-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .brand h1 {
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 0.55rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+  }
+
+  .header-right-actions {
+    gap: 0.4rem;
+  }
+
+  .lang-toggle-btn {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+    border-radius: 6px;
+  }
+
+  .status-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.65rem;
+  }
+
+  /* Main Container */
+  .app-main {
+    padding: 1.25rem 0.85rem max(2rem, env(safe-area-inset-bottom, 2rem));
+    gap: 1.25rem;
+  }
+
+  .glass-panel {
+    padding: 1.15rem;
+    border-radius: 12px;
+  }
+
+  /* Quant Decision Card Responsive Fixes */
+  .quant-decision-card {
+    padding: 1.15rem;
+    gap: 1rem;
+    border-radius: 12px;
+  }
+
+  .decision-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .decision-main {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .decision-badge {
+    font-size: 1.2rem;
+    padding: 0.4rem 0.85rem;
+  }
+
+  .purchase-decision-box {
+    padding: 0.35rem 0.75rem;
+  }
+
+  .purchase-value {
+    font-size: 1.1rem;
+  }
+
+  .score-dial-group {
+    width: 100%;
+    justify-content: space-around;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  .dial-item {
+    align-items: center;
+  }
+
+  .dial-value {
+    font-size: 1.35rem;
+  }
+
+  .one-liner-summary {
+    font-size: 0.95rem;
+    padding-left: 0.75rem;
+    border-left-width: 2px;
+  }
+
+  .decision-meta-row {
+    gap: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Chart Viewport & Tabs */
+  .chart-container-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .chart-header {
+    gap: 0.6rem;
+  }
+
+  .chart-tabs {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.25rem;
+  }
+
+  .chart-tab {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .chart-viewport {
+    height: 270px;
+  }
+
+  /* Trade Framework & Bull/Bear */
+  .trade-framework-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bull-bear-split {
+    grid-template-columns: 1fr;
+  }
+
+  .quant-card {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  /* Mobile Tooltips */
+  [data-tooltip]:hover::before {
+    max-width: 210px;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Extra Compact Viewport Adjustments (iPhone 12/13/14/15/16 Mini & SE) */
+@media (max-width: 400px) {
+  .subtitle {
+    display: none;
+  }
+
+  .status-text {
+    display: none;
+  }
+
+  .status-badge {
+    padding: 0.35rem;
+    border-radius: 50%;
+  }
+
+  .quick-tickers {
+    gap: 0.35rem;
+  }
+
+  .ticker-chip {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+
+  .trade-params {
+    grid-template-columns: 1fr;
+  }
+}
 
 
 
