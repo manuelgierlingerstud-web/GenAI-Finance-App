@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "node server.ts",
-    "lint": "vite build"
+    "lint": "vite build",
+    "test": "node --test test/quant.test.js"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -16,9 +17,11 @@
     "vite": "^5.4.0"
   },
   "dependencies": {
+    "@types/papaparse": "^5.5.2",
     "chart.js": "^4.5.1",
     "express": "^5.2.1",
     "html2pdf.js": "^0.14.0",
-    "lucide-static": "^1.28.0"
+    "lucide-static": "^1.28.0",
+    "papaparse": "^5.7.0"
   }
 }

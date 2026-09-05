@@ -1,5 +1,7 @@
 import { Chart, registerables } from 'chart.js';
 import html2pdf from 'html2pdf.js';
+import Papa from 'papaparse';
+import { initRouter } from './src/router.js';
 Chart.register(...registerables);
 
 const form = document.getElementById('ticker-form');
@@ -499,24 +501,23 @@ const packetUrlInput = document.getElementById('packet-url-input');
 const loadUrlBtn = document.getElementById('load-url-btn');
 
 function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim() !== '');
-  if (lines.length < 2) throw new Error('CSV must contain at least a header and one row of data.');
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-  const rowValues = lines[1].split(',').map(v => v.trim());
-  
-  const getVal = (key, defaultVal) => {
-    const idx = headers.findIndex(h => h.includes(key));
-    return idx !== -1 && rowValues[idx] !== undefined ? rowValues[idx] : defaultVal;
-  };
-
-  const ticker = getVal('ticker', getVal('symbol', 'AAPL')).toUpperCase();
-  const company = getVal('company', getVal('name', ticker));
-  const revenue = getVal('revenue', '$110B');
-  const eps = getVal('eps', '$2.00');
+  const result = Papa.parse(text, { header: true, skipEmptyLines: true });
+  if (result.errors && result.errors.length > 0) {
+    throw new Error(`CSV parsing error: ${result.errors[0].message}`);
+  }
+  const data = result.data;
+  if (!data || data.length === 0) {
+    throw new Error('CSV file contains no valid rows.');
+  }
+  const row = data[0];
+  const ticker = (row.ticker || row.symbol || 'NVDA').toUpperCase();
+  const company = row.company || row.name || ticker;
+  const revenue = row.revenue || '$100B';
+  const eps = row.eps || '$1.50';
 
   return {
-    meta: { symbol: ticker, reporting_company: company, report_date: '2026-08-04' },
-    sentiment: { overall: { label: 'positive', density: 1.6 } },
+    meta: { symbol: ticker, reporting_company: company, report_date: new Date().toISOString().split('T')[0] },
+    sentiment: { overall: { label: 'positive', density: 1.2 } },
     extraction: {
       financial_figures: [
         { metric: 'Revenue', figure: revenue },
@@ -2498,6 +2499,10 @@ function runDetailedDataIntegrityCheck(priceData, evalData, lang = 'en') {
     </div>
   `;
 }
+
+// Initialize router
+initRouter(currentLang);
+
 
 
 
