@@ -9,9 +9,7 @@ function apiPlugin() {
     res.end(JSON.stringify({
       hasTwelveDataKey: Boolean(twelveDataKey),
       hasOpenRouterKey: Boolean(openRouterKey),
-      systemActive: Boolean(twelveDataKey && openRouterKey),
-      twelveDataKey: twelveDataKey,
-      openRouterKey: openRouterKey
+      systemActive: Boolean(twelveDataKey && openRouterKey)
     }));
   };
 

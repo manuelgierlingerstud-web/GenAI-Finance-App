@@ -379,60 +379,23 @@ if (langBtn) {
 // Store active chart instances to destroy before re-rendering
 let activeCharts = [];
 
-// Backend keys store
-const backendKeys = {
-  twelveData: '',
-  openRouter: ''
-};
-
-// Check backend API keys on page load
+// Check backend API availability on page load (boolean flags only)
 async function checkBackendStatus() {
   try {
     const res = await fetch('/api/status');
     if (!res.ok) throw new Error('Status endpoint unavailable');
     const data = await res.json();
 
-    if (data.hasTwelveDataKey) {
-      backendKeys.twelveData = data.twelveDataKey || 'BACKEND_ACTIVE';
-      if (twelveDataTag) {
-        twelveDataTag.textContent = currentLang === 'de' ? '✓ Backend Aktiv' : '✓ Backend Active';
-        twelveDataTag.className = 'backend-status-tag detected';
-      }
-      if (twelveDataInput) {
-        twelveDataInput.placeholder = currentLang === 'de' ? 'Nutze Backend-Schlüssel (oder eigenen eingeben)' : 'Using Backend Key (or enter custom key)';
-      }
-    } else {
-      if (twelveDataTag) {
-        twelveDataTag.textContent = currentLang === 'de' ? 'Schlüssel Fehlt' : 'Key Needed';
-        twelveDataTag.className = 'backend-status-tag missing';
-      }
+    if (data.hasTwelveDataKey && twelveDataTag) {
+      twelveDataTag.textContent = currentLang === 'de' ? '✓ Backend Aktiv' : '✓ Backend Active';
+      twelveDataTag.className = 'backend-status-tag detected';
     }
-
-    if (data.hasOpenRouterKey) {
-      backendKeys.openRouter = data.openRouterKey || 'BACKEND_ACTIVE';
-      if (openRouterTag) {
-        openRouterTag.textContent = currentLang === 'de' ? '✓ Backend Aktiv' : '✓ Backend Active';
-        openRouterTag.className = 'backend-status-tag detected';
-      }
-      if (openRouterInput) {
-        openRouterInput.placeholder = currentLang === 'de' ? 'Nutze Backend-Schlüssel (oder eigenen eingeben)' : 'Using Backend Key (or enter custom key)';
-      }
-    } else {
-      if (openRouterTag) {
-        openRouterTag.textContent = currentLang === 'de' ? 'Schlüssel Fehlt' : 'Key Needed';
-        openRouterTag.className = 'backend-status-tag missing';
-      }
+    if (data.hasOpenRouterKey && openRouterTag) {
+      openRouterTag.textContent = currentLang === 'de' ? '✓ Backend Aktiv' : '✓ Backend Active';
+      openRouterTag.className = 'backend-status-tag detected';
     }
   } catch (err) {
     console.warn('Backend status check failed:', err);
-    if (twelveDataTag) {
-      twelveDataTag.textContent = currentLang === 'de' ? 'Manuelle Eingabe' : 'Manual Entry';
-      twelveDataTag.className = 'backend-status-tag missing';
-    }
-    if (openRouterTag) {
-      openRouterTag.textContent = currentLang === 'de' ? 'Manuelle Eingabe' : 'Manual Entry';
-      openRouterTag.className = 'backend-status-tag missing';
-    }
   } finally {
     updateStatusBadge();
   }
@@ -443,8 +406,8 @@ function updateStatusBadge() {
   if (!statusBadge || !statusText) return;
 
   const t = I18N[currentLang] || I18N.en;
-  const hasTD = Boolean(twelveDataInput.value.trim() || backendKeys.twelveData);
-  const hasOR = Boolean(openRouterInput.value.trim() || backendKeys.openRouter);
+  const hasTD = Boolean(twelveDataInput?.value?.trim() || sessionStorage.getItem('twelvedata_api_key'));
+  const hasOR = Boolean(openRouterInput?.value?.trim() || sessionStorage.getItem('openrouter_api_key'));
 
   if (hasTD && hasOR) {
     statusBadge.className = 'status-badge active';
@@ -465,8 +428,8 @@ function updateStatusBadge() {
 // Click status badge to jump to missing key field
 if (statusBadge) {
   statusBadge.addEventListener('click', () => {
-    const hasTD = Boolean(twelveDataInput.value.trim() || backendKeys.twelveData);
-    const hasOR = Boolean(openRouterInput.value.trim() || backendKeys.openRouter);
+    const hasTD = Boolean(twelveDataInput?.value?.trim() || sessionStorage.getItem('twelvedata_api_key'));
+    const hasOR = Boolean(openRouterInput?.value?.trim() || sessionStorage.getItem('openrouter_api_key'));
 
     if (!hasTD && twelveDataInput) {
       twelveDataInput.focus();

@@ -20,7 +20,7 @@ export async function renderPortfolioView(container, currentLang = 'en') {
             ${isDe ? 'KI & Halbleiter Portfolio Dashboard' : 'AI & Semiconductor Portfolio Dashboard'}
           </h2>
           <p style="margin: 0; font-size: 0.9rem; color: #94a3b8;">
-            ${isDe ? 'Regelbasierte, signalgewichtete Portfolio-Konstruktion über 20 Kern- und Satellitenwerte.' : 'Finance Track — Rules-Based Signal-Weighted Portfolio across 20 core & satellite equities.'}
+            Finance Track — Rules-Based Signal-Weighted Portfolio; not mean-variance optimized.
           </p>
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
@@ -36,14 +36,14 @@ export async function renderPortfolioView(container, currentLang = 'en') {
       <!-- API Keys & Configuration Bar -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; background: rgba(30, 41, 59, 0.5); padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.06);">
         <div>
-          <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Twelve Data API Key (Session)</label>
+          <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">Twelve Data API Key (Session Storage)</label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="password" id="portfolio-td-key" placeholder="Twelve Data API Key" value="${escapeHTML(getTwelveDataKey())}" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85rem;" />
+            <input type="password" id="portfolio-td-key" placeholder="Enter Twelve Data API Key" value="${escapeHTML(getTwelveDataKey())}" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85rem;" />
             <button type="button" id="save-td-key-btn" style="padding: 0.5rem 0.9rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Save</button>
           </div>
         </div>
         <div>
-          <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">OpenRouter API Key (Session)</label>
+          <label style="display: block; font-size: 0.82rem; color: #cbd5e1; margin-bottom: 0.3rem; font-weight: 600;">OpenRouter API Key (Session Storage)</label>
           <div style="display: flex; gap: 0.5rem;">
             <input type="password" id="portfolio-or-key" placeholder="sk-or-v1-..." value="${escapeHTML(getOpenRouterKey())}" style="flex: 1; padding: 0.5rem; background: rgba(15, 23, 42, 0.8); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85rem;" />
             <button type="button" id="save-or-key-btn" style="padding: 0.5rem 0.9rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Save</button>
@@ -56,21 +56,23 @@ export async function renderPortfolioView(container, currentLang = 'en') {
         </div>
       </div>
 
+      <div id="text-pipeline-progress" style="margin-bottom: 1rem; font-size: 0.85rem; color: #38bdf8; display: none;"></div>
+
       <!-- Portfolio Summary Metrics -->
       <div id="portfolio-metrics-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
           <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Strategie Kapital' : 'Strategy Capital'}</div>
           <div style="font-size: 1.35rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">USD 1,000,000</div>
-          <div style="font-size: 0.75rem; color: #34d399; margin-top: 0.2rem;">20 Equities (10 Core + 10 Satellites)</div>
+          <div style="font-size: 0.75rem; color: #34d399; margin-top: 0.2rem;">20 Equities + Cash Buffer</div>
         </div>
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
           <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Datenstatus & Abdeckung' : 'Data Status & Coverage'}</div>
-          <div id="portfolio-coverage-text" style="font-size: 1.35rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Loading Market Data...</div>
-          <div style="font-size: 0.75rem; color: #93c5fd; margin-top: 0.2rem;">Twelve Data & sessionStorage</div>
+          <div id="portfolio-coverage-text" style="font-size: 1.35rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Awaiting Key Config</div>
+          <div style="font-size: 0.75rem; color: #93c5fd; margin-top: 0.2rem;">Twelve Data session storage</div>
         </div>
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
           <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Letzte Aktualisierung' : 'Last Refresh'}</div>
-          <div id="portfolio-refresh-time" style="font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Not yet refreshed</div>
+          <div id="portfolio-refresh-time" style="font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Not yet loaded</div>
           <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.2rem;">Cache TTL: 15 mins</div>
         </div>
       </div>
@@ -93,9 +95,15 @@ export async function renderPortfolioView(container, currentLang = 'en') {
             </tr>
           </thead>
           <tbody id="portfolio-table-body">
-            <!-- Populated dynamically -->
+            <tr><td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">Enter Twelve Data API key in configuration above or click Refresh Market Data to load.</td></tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Auditable Evidence Section -->
+      <div id="auditable-evidence-container" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); padding: 1.25rem; border-radius: 10px; margin-bottom: 2rem; display: none;">
+        <h4 style="margin-top: 0; color: #38bdf8; font-size: 1rem;">📋 Auditable Evidence & Sources</h4>
+        <div id="evidence-list-content" style="font-size: 0.85rem; color: #cbd5e1; max-height: 200px; overflow-y: auto;"></div>
       </div>
 
       <!-- Human Review Surface & Executive Commentary -->
@@ -104,7 +112,7 @@ export async function renderPortfolioView(container, currentLang = 'en') {
           🛡️ ${isDe ? 'Menschliche Überprüfung & Executive Commentary' : 'Human Review Surface & Executive Commentary'}
         </h3>
         <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1rem;">
-          ${isDe ? 'Bitte prüfen Sie die Portfoliokennzahlen und bestätigen Sie die Überprüfung, um die KI-gestützte Executive Summary für das Investmentkomitee freizuschalten.' : 'Verify portfolio metrics and evidence coverage before generating LLM executive commentary.'}
+          ${isDe ? 'Bitte prüfen Sie die Portfoliokennzahlen und bestätigen Sie die Überprüfung, um die KI-gestützte Executive Summary für das Investmentkomitee freizuschalten.' : 'Verify portfolio metrics, weights, and evidence coverage before generating LLM executive commentary.'}
         </p>
 
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
@@ -123,7 +131,6 @@ export async function renderPortfolioView(container, currentLang = 'en') {
     </div>
   `;
 
-  // Wire up event listeners and load initial portfolio data
   setupPortfolioLogic(container, currentLang);
 }
 
@@ -151,6 +158,10 @@ function setupPortfolioLogic(container, currentLang) {
 
   refreshBtn.addEventListener('click', () => {
     loadPortfolioData(container);
+  });
+
+  refreshTextBtn.addEventListener('click', () => {
+    runTextSignalPipeline(container);
   });
 
   reviewCheckbox.addEventListener('change', () => {
@@ -220,8 +231,10 @@ function setupPortfolioLogic(container, currentLang) {
     });
   });
 
-  // Initial load
-  loadPortfolioData(container);
+  // Automatically load market data if Twelve Data key exists in sessionStorage
+  if (getTwelveDataKey()) {
+    loadPortfolioData(container);
+  }
 }
 
 async function loadPortfolioData(container) {
@@ -229,26 +242,23 @@ async function loadPortfolioData(container) {
   const coverageText = container.querySelector('#portfolio-coverage-text');
   const refreshTime = container.querySelector('#portfolio-refresh-time');
 
-  tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading 20 stocks data from Twelve Data...</td></tr>`;
-
-  const symbols = PORTFOLIO_UNIVERSE.map(s => s.ticker);
-  let quotes = {};
-  let priceHistories = {};
-
-  try {
-    quotes = await fetchBatchQuotes(symbols);
-  } catch (err) {
-    console.warn('Batch quote fetch warning:', err);
+  const apiKey = getTwelveDataKey();
+  if (!apiKey) {
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #f87171;">Twelve Data API key required. Please enter your key in the configuration bar above.</td></tr>`;
+    coverageText.textContent = 'Key Missing';
+    return;
   }
+
+  tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading 20 stocks data from Twelve Data...</td></tr>`;
 
   const scoredStocks = [];
   let validCount = 0;
+  const allSources = [];
 
   for (const stock of PORTFOLIO_UNIVERSE) {
     let priceData = [];
     let hasValidData = false;
-    let latestPrice = 100.0;
-    let dailyChangePct = 1.2;
+    let latestPrice = null;
 
     try {
       priceData = await fetchTimeSeries(stock.ticker, 90);
@@ -256,19 +266,28 @@ async function loadPortfolioData(container) {
         hasValidData = true;
         validCount++;
         latestPrice = priceData[priceData.length - 1].close;
-        const prevClose = priceData[priceData.length - 2]?.close || latestPrice;
-        dailyChangePct = ((latestPrice - prevClose) / prevClose) * 100;
       }
     } catch (e) {
       console.warn(`Failed to fetch history for ${stock.ticker}:`, e);
     }
 
-    priceHistories[stock.ticker] = priceData;
-
-    // Technical score calculation
     const techResult = calculateTechnicalScore(priceData);
     const annVol = techResult.metrics?.annualizedVolatility || 0.3;
-    const textResult = { available: false, score: null }; // default without live text fetch
+
+    // Check sessionStorage for cached text result
+    let textResult = { available: false, score: null };
+    const cachedText = sessionStorage.getItem(`cache_text_${stock.ticker}`);
+    if (cachedText) {
+      try {
+        textResult = JSON.parse(cachedText);
+        if (textResult.sourcesUsed) {
+          allSources.push(...textResult.sourcesUsed);
+        }
+      } catch {
+        // ignore
+      }
+    }
+
     const compositeResult = calculateCompositeScore(techResult.score, textResult);
 
     scoredStocks.push({
@@ -277,26 +296,126 @@ async function loadPortfolioData(container) {
       role: stock.role,
       core: stock.core,
       latestPrice,
-      dailyChangePct,
-      technicalScore: techResult.score,
-      textLabel: 'N/A',
-      compositeScore: compositeResult.compositeScore,
-      signalLabel: compositeResult.signalLabel,
+      technicalScore: hasValidData ? techResult.score : null,
+      textResult,
+      compositeScore: hasValidData ? compositeResult.compositeScore : null,
+      signalLabel: hasValidData ? compositeResult.signalLabel : 'N/A',
       annualizedVolatility: annVol,
       hasValidData
     });
   }
 
-  // Calculate portfolio weights across 20 stocks
   const portfolioWeights = calculatePortfolioWeights(scoredStocks);
 
-  // Render Table Rows
+  renderPortfolioTable(container, scoredStocks, portfolioWeights);
+
+  coverageText.textContent = `${validCount} / 20 Equities Active`;
+  refreshTime.textContent = new Date().toLocaleTimeString();
+
+  // Update evidence section if sources exist
+  if (allSources.length > 0) {
+    const evContainer = container.querySelector('#auditable-evidence-container');
+    const evContent = container.querySelector('#evidence-list-content');
+    evContainer.style.display = 'block';
+    evContent.innerHTML = allSources.map(s => `
+      <div style="padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <strong>${escapeHTML(s.title || 'Source')}</strong> (${escapeHTML(s.date || 'Recent')}) — 
+        <a href="${sanitizeUrl(s.url)}" target="_blank" style="color: #60a5fa; text-decoration: underline;">${escapeHTML(s.url)}</a>
+      </div>
+    `).join('');
+  }
+
+  window.__lastPortfolioReviewSurface = {
+    strategyCapital: STRATEGY_CAPITAL,
+    validEquitiesCount: validCount,
+    cashAllocation: portfolioWeights.cashAllocation,
+    timestamp: new Date().toISOString(),
+    allocations: portfolioWeights.allocations,
+    scoredStocks
+  };
+}
+
+async function runTextSignalPipeline(container) {
+  const orKey = getOpenRouterKey();
+  if (!orKey) {
+    alert('OpenRouter API key required to refresh text signals.');
+    return;
+  }
+
+  const progressEl = container.querySelector('#text-pipeline-progress');
+  progressEl.style.display = 'block';
+  progressEl.textContent = 'Initializing OpenRouter text research pipeline across 20 equities...';
+
+  let analyzedCount = 0;
+  const allSources = [];
+
+  for (const stock of PORTFOLIO_UNIVERSE) {
+    analyzedCount++;
+    progressEl.textContent = `Analyzing company ${analyzedCount} of 20: ${stock.ticker} (${stock.name})...`;
+
+    try {
+      const researchText = await fetchTextResearch(stock.ticker, stock.name);
+      const extraction = await extractStructuredSentiment(researchText, stock.ticker);
+
+      const posPhrases = extraction.positive_phrases || [];
+      const negPhrases = extraction.negative_phrases || [];
+      const evidenceSum = extraction.evidence_summary || researchText;
+      const sources = extraction.sources || [];
+
+      // JavaScript calculates positive_count, negative_count, source_word_count, sentiment_density, textScore
+      const positive_count = posPhrases.reduce((acc, p) => acc + p.split(/\s+/).length, posPhrases.length);
+      const negative_count = negPhrases.reduce((acc, p) => acc + p.split(/\s+/).length, negPhrases.length);
+      const source_word_count = evidenceSum.split(/\s+/).length;
+
+      const density = (positive_count - negative_count) / Math.max(source_word_count, 1);
+      const textScoreObj = calculateTextScore({
+        available: true,
+        positive_count,
+        negative_count,
+        source_word_count,
+        sourcesUsed: sources
+      });
+
+      const textResult = {
+        available: true,
+        score: textScoreObj.score,
+        density,
+        label: textScoreObj.label,
+        positive_count,
+        negative_count,
+        evidenceSummary: evidenceSum,
+        sourcesUsed: sources
+      };
+
+      sessionStorage.setItem(`cache_text_${stock.ticker}`, JSON.stringify(textResult));
+      allSources.push(...sources);
+    } catch (e) {
+      console.warn(`Text analysis failed for ${stock.ticker}:`, e);
+      // Failure for one company must not stop the remaining companies
+    }
+  }
+
+  progressEl.textContent = 'Text signal extraction complete. Recalculating portfolio weights...';
+  setTimeout(() => {
+    progressEl.style.display = 'none';
+    loadPortfolioData(container);
+  }, 1000);
+}
+
+function renderPortfolioTable(container, scoredStocks, portfolioWeights) {
+  const tbody = container.querySelector('#portfolio-table-body');
   tbody.innerHTML = '';
-  scoredStocks.forEach((stock, idx) => {
+
+  scoredStocks.forEach(stock => {
     const alloc = portfolioWeights.allocations.find(a => a.ticker === stock.ticker);
     const weightPct = ((alloc?.weight || 0) * 100).toFixed(2) + '%';
     const usdAlloc = '$' + (alloc?.usdAllocation || 0).toLocaleString();
     const isCore = stock.core;
+
+    const priceDisplay = stock.latestPrice !== null ? '$' + stock.latestPrice.toFixed(2) : 'N/A';
+    const techDisplay = stock.technicalScore !== null ? stock.technicalScore : 'N/A';
+    const compDisplay = stock.compositeScore !== null ? stock.compositeScore : 'N/A';
+    const textLabel = stock.textResult?.available ? stock.textResult.label : 'Insufficient Data';
 
     const tr = document.createElement('tr');
     tr.style.cssText = 'border-bottom: 1px solid rgba(255,255,255,0.06); transition: background 0.2s;';
@@ -311,14 +430,16 @@ async function loadPortfolioData(container) {
         <div style="font-weight: 600; color: #e2e8f0;">${escapeHTML(stock.name)}</div>
         <div style="font-size: 0.75rem; color: #94a3b8;">${escapeHTML(stock.role)}</div>
       </td>
-      <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #f8fafc;">$${stock.latestPrice.toFixed(2)}</td>
-      <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #38bdf8;">${stock.technicalScore}</td>
+      <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #f8fafc;">${priceDisplay}</td>
+      <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #38bdf8;">${techDisplay}</td>
       <td style="padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.75rem; color: #94a3b8;">Pending text refresh</span>
+        <span style="font-size: 0.75rem; color: ${textLabel === 'POSITIVE' ? '#34d399' : (textLabel === 'NEGATIVE' ? '#f87171' : '#cbd5e1')}; font-weight: 600;">
+          ${textLabel}
+        </span>
       </td>
-      <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #f8fafc;">${stock.compositeScore}</td>
+      <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #f8fafc;">${compDisplay}</td>
       <td style="padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: ${stock.signalLabel === 'OVERWEIGHT' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(234, 179, 8, 0.2)'}; color: ${stock.signalLabel === 'OVERWEIGHT' ? '#34d399' : '#facc15'};">
+        <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: ${stock.signalLabel === 'OVERWEIGHT' ? 'rgba(16, 185, 129, 0.2)' : (stock.signalLabel === 'UNDERWEIGHT' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 179, 8, 0.2)')}; color: ${stock.signalLabel === 'OVERWEIGHT' ? '#34d399' : (stock.signalLabel === 'UNDERWEIGHT' ? '#f87171' : '#facc15')};">
           ${stock.signalLabel}
         </span>
       </td>
@@ -328,15 +449,24 @@ async function loadPortfolioData(container) {
     tbody.appendChild(tr);
   });
 
-  coverageText.textContent = `${validCount} / 20 Equities Active`;
-  refreshTime.textContent = new Date().toLocaleTimeString();
-
-  // Store review surface for LLM commentary
-  window.__lastPortfolioReviewSurface = {
-    strategyCapital: STRATEGY_CAPITAL,
-    validEquitiesCount: validCount,
-    timestamp: new Date().toISOString(),
-    allocations: portfolioWeights.allocations,
-    scoredStocks
-  };
+  // Add Visible CASH Row
+  const cashWeightPct = (portfolioWeights.cashAllocation * 100).toFixed(2) + '%';
+  const cashUsdAlloc = '$' + Math.round(portfolioWeights.cashAllocation * STRATEGY_CAPITAL).toLocaleString();
+  const cashTr = document.createElement('tr');
+  cashTr.style.cssText = 'background: rgba(16, 185, 129, 0.08); border-top: 2px solid rgba(16, 185, 129, 0.3); font-weight: 700;';
+  cashTr.innerHTML = `
+    <td style="padding: 0.75rem;">
+      <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399;">CASH BUFFER</span>
+    </td>
+    <td style="padding: 0.75rem; color: #34d399;">USD</td>
+    <td style="padding: 0.75rem; color: #f8fafc;">Uninvested Cash & Missing Data Reserve</td>
+    <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #34d399;">$1.00</td>
+    <td style="padding: 0.75rem; text-align: right;">-</td>
+    <td style="padding: 0.75rem; text-align: center;">-</td>
+    <td style="padding: 0.75rem; text-align: right;">-</td>
+    <td style="padding: 0.75rem; text-align: center;">LIQUID</td>
+    <td style="padding: 0.75rem; text-align: right; color: #34d399;">${cashWeightPct}</td>
+    <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #34d399;">${cashUsdAlloc}</td>
+  `;
+  tbody.appendChild(cashTr);
 }
