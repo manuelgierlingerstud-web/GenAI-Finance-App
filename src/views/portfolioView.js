@@ -1,23 +1,21 @@
 import { PORTFOLIO_UNIVERSE, STRATEGY_CAPITAL } from '../config/portfolio.js';
-import { getTwelveDataKey, setTwelveDataKey, fetchBatchQuotes, fetchTimeSeries } from '../api/twelveData.js';
-import { getOpenRouterKey, setOpenRouterKey, fetchTextResearch, extractStructuredSentiment, generateExecutiveCommentary } from '../api/openRouter.js';
-import { calculateTechnicalScore, calculateTextScore, calculateCompositeScore } from '../quant/scoring.js';
+import { getTwelveDataKey, setTwelveDataKey, fetchTimeSeries } from '../api/twelveData.js';
+import { getOpenRouterKey, setOpenRouterKey, generateExecutiveCommentary } from '../api/openRouter.js';
+import { calculateTechnicalScore, calculateCompositeScore } from '../quant/scoring.js';
 import { calculatePortfolioWeights } from '../quant/weights.js';
 import { escapeHTML, sanitizeUrl } from '../security/rendering.js';
 import html2pdf from 'html2pdf.js';
 
-export async function renderPortfolioView(container, currentLang = 'en') {
-  const isDe = currentLang === 'de';
-
+export async function renderPortfolioView(container) {
   container.innerHTML = `
     <div class="quant-card" style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(59, 130, 246, 0.3); padding: 2rem; border-radius: 16px; margin-bottom: 2rem;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
         <div>
           <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 0.25rem 0.6rem; border-radius: 6px; font-weight: 600; text-transform: uppercase;">
-            ${isDe ? 'Akademisches Mandat • USD 1.000.000' : 'Academic Mandate • USD 1,000,000 Strategy'}
+            Academic Mandate • USD 1,000,000 Strategy
           </span>
           <h2 style="margin: 0.5rem 0 0.25rem 0; font-size: 1.75rem; color: #f8fafc; font-weight: 700;">
-            ${isDe ? 'KI & Halbleiter Portfolio Dashboard' : 'AI & Semiconductor Portfolio Dashboard'}
+            AI & Semiconductor Portfolio Dashboard
           </h2>
           <p style="margin: 0; font-size: 0.9rem; color: #94a3b8;">
             Finance Track — Rules-Based Signal-Weighted Portfolio; not mean-variance optimized.
@@ -25,10 +23,10 @@ export async function renderPortfolioView(container, currentLang = 'en') {
         </div>
         <div style="display: flex; gap: 0.75rem; align-items: center;">
           <button type="button" id="pdf-export-portfolio-btn" style="padding: 0.6rem 1.2rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
-            ${isDe ? '📥 Portfolio PDF Export' : '📥 Export Portfolio PDF'}
+            📥 Export Portfolio PDF
           </button>
           <button type="button" id="refresh-portfolio-btn" style="padding: 0.6rem 1.2rem; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: #60a5fa; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
-            ${isDe ? '🔄 Marktdaten aktualisieren' : '🔄 Refresh Market Data'}
+            🔄 Refresh Market Data
           </button>
         </div>
       </div>
@@ -49,11 +47,6 @@ export async function renderPortfolioView(container, currentLang = 'en') {
             <button type="button" id="save-or-key-btn" style="padding: 0.5rem 0.9rem; background: #3b82f6; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Save</button>
           </div>
         </div>
-        <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
-          <button type="button" id="refresh-text-signals-btn" style="flex: 1; padding: 0.5rem; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
-            ${isDe ? '🧠 Text-Signale aktualisieren' : '🧠 Refresh Text Signals'}
-          </button>
-        </div>
       </div>
 
       <div id="text-pipeline-progress" style="margin-bottom: 1rem; font-size: 0.85rem; color: #38bdf8; display: none;"></div>
@@ -61,17 +54,17 @@ export async function renderPortfolioView(container, currentLang = 'en') {
       <!-- Portfolio Summary Metrics -->
       <div id="portfolio-metrics-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Strategie Kapital' : 'Strategy Capital'}</div>
+          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Strategy Capital</div>
           <div style="font-size: 1.35rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">USD 1,000,000</div>
           <div style="font-size: 0.75rem; color: #34d399; margin-top: 0.2rem;">20 Equities + Cash Buffer</div>
         </div>
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Datenstatus & Abdeckung' : 'Data Status & Coverage'}</div>
+          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Data Status & Coverage</div>
           <div id="portfolio-coverage-text" style="font-size: 1.35rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Awaiting Key Config</div>
           <div style="font-size: 0.75rem; color: #93c5fd; margin-top: 0.2rem;">Twelve Data session storage</div>
         </div>
         <div style="background: rgba(30, 41, 59, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
-          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">${isDe ? 'Letzte Aktualisierung' : 'Last Refresh'}</div>
+          <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase;">Last Refresh</div>
           <div id="portfolio-refresh-time" style="font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin-top: 0.2rem;">Not yet loaded</div>
           <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 0.2rem;">Cache TTL: 15 mins</div>
         </div>
@@ -100,30 +93,24 @@ export async function renderPortfolioView(container, currentLang = 'en') {
         </table>
       </div>
 
-      <!-- Auditable Evidence Section -->
-      <div id="auditable-evidence-container" style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.08); padding: 1.25rem; border-radius: 10px; margin-bottom: 2rem; display: none;">
-        <h4 style="margin-top: 0; color: #38bdf8; font-size: 1rem;">📋 Auditable Evidence & Sources</h4>
-        <div id="evidence-list-content" style="font-size: 0.85rem; color: #cbd5e1; max-height: 200px; overflow-y: auto;"></div>
-      </div>
-
       <!-- Human Review Surface & Executive Commentary -->
       <div style="background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(59, 130, 246, 0.3); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
         <h3 style="margin-top: 0; color: #f8fafc; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
-          🛡️ ${isDe ? 'Menschliche Überprüfung & Executive Commentary' : 'Human Review Surface & Executive Commentary'}
+          🛡️ Human Review Surface & Executive Commentary
         </h3>
         <p style="font-size: 0.88rem; color: #cbd5e1; margin-bottom: 1rem;">
-          ${isDe ? 'Bitte prüfen Sie die Portfoliokennzahlen und bestätigen Sie die Überprüfung, um die KI-gestützte Executive Summary für das Investmentkomitee freizuschalten.' : 'Verify portfolio metrics, weights, and evidence coverage before generating LLM executive commentary.'}
+          Verify portfolio metrics, weights, and evidence coverage before generating LLM executive commentary.
         </p>
 
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
           <input type="checkbox" id="review-confirm-checkbox" style="width: 18px; height: 18px; cursor: pointer;" />
           <label for="review-confirm-checkbox" style="font-size: 0.9rem; color: #f8fafc; cursor: pointer; font-weight: 500;">
-            ${isDe ? 'Ich habe die Portfoliowerte, technischen Scores und Datenabdeckungen geprüft.' : 'I have reviewed the portfolio evidence, technical scores, and data coverage.'}
+            I have reviewed the portfolio evidence, technical scores, and data coverage.
           </label>
         </div>
 
         <button type="button" id="generate-commentary-btn" disabled style="padding: 0.65rem 1.25rem; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; opacity: 0.5; transition: all 0.2s;">
-          ${isDe ? '✨ Executive Commentary generieren' : '✨ Generate Executive Commentary'}
+          ✨ Generate Executive Commentary via Claude Sonnet 5
         </button>
 
         <div id="executive-commentary-result" style="margin-top: 1.5rem; display: none;"></div>
@@ -131,16 +118,15 @@ export async function renderPortfolioView(container, currentLang = 'en') {
     </div>
   `;
 
-  setupPortfolioLogic(container, currentLang);
+  setupPortfolioLogic(container);
 }
 
-function setupPortfolioLogic(container, currentLang) {
+function setupPortfolioLogic(container) {
   const tdKeyInput = container.querySelector('#portfolio-td-key');
   const orKeyInput = container.querySelector('#portfolio-or-key');
   const saveTdBtn = container.querySelector('#save-td-key-btn');
   const saveOrBtn = container.querySelector('#save-or-key-btn');
   const refreshBtn = container.querySelector('#refresh-portfolio-btn');
-  const refreshTextBtn = container.querySelector('#refresh-text-signals-btn');
   const exportPdfBtn = container.querySelector('#pdf-export-portfolio-btn');
   const reviewCheckbox = container.querySelector('#review-confirm-checkbox');
   const generateCommentaryBtn = container.querySelector('#generate-commentary-btn');
@@ -158,10 +144,6 @@ function setupPortfolioLogic(container, currentLang) {
 
   refreshBtn.addEventListener('click', () => {
     loadPortfolioData(container);
-  });
-
-  refreshTextBtn.addEventListener('click', () => {
-    runTextSignalPipeline(container);
   });
 
   reviewCheckbox.addEventListener('change', () => {
@@ -206,20 +188,20 @@ function setupPortfolioLogic(container, currentLang) {
       console.error(err);
       alert(`Failed to generate commentary: ${err.message}`);
     } finally {
-      generateCommentaryBtn.textContent = '✨ Generate Executive Commentary';
+      generateCommentaryBtn.textContent = '✨ Generate Executive Commentary via Claude Sonnet 5';
       generateCommentaryBtn.disabled = false;
     }
   });
 
   exportPdfBtn.addEventListener('click', () => {
-    exportPdfBtn.textContent = 'Generating PDF...';
+    exportPdfBtn.textContent = 'Generating Landscape PDF...';
     exportPdfBtn.disabled = true;
     const opt = {
       margin: 10,
       filename: 'AI_Semiconductor_Portfolio_Report.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
     };
     html2pdf().from(container).set(opt).save().then(() => {
       exportPdfBtn.textContent = '📥 Export Portfolio PDF';
@@ -231,7 +213,6 @@ function setupPortfolioLogic(container, currentLang) {
     });
   });
 
-  // Automatically load market data if Twelve Data key exists in sessionStorage
   if (getTwelveDataKey()) {
     loadPortfolioData(container);
   }
@@ -241,53 +222,93 @@ async function loadPortfolioData(container) {
   const tbody = container.querySelector('#portfolio-table-body');
   const coverageText = container.querySelector('#portfolio-coverage-text');
   const refreshTime = container.querySelector('#portfolio-refresh-time');
+  const refreshBtn = container.querySelector('#refresh-portfolio-btn');
 
   const apiKey = getTwelveDataKey();
   if (!apiKey) {
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #f87171;">Twelve Data API key required. Please enter your key in the configuration bar above.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #f87171;">Twelve Data API key required. Please enter your key in session storage above.</td></tr>`;
     coverageText.textContent = 'Key Missing';
     return;
   }
 
-  tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading 20 stocks data from Twelve Data...</td></tr>`;
+  if (refreshBtn) refreshBtn.disabled = true;
+  tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 2rem; color: #94a3b8;">Loading portfolio universe (rate-aware queue)...</td></tr>`;
 
   const scoredStocks = [];
-  let validCount = 0;
-  const allSources = [];
+  let loadedCount = 0;
+  let cachedCount = 0;
+  let errorCount = 0;
+
+  const uncachedStocks = [];
+  const stockResultsMap = new Map();
 
   for (const stock of PORTFOLIO_UNIVERSE) {
-    let priceData = [];
-    let hasValidData = false;
-    let latestPrice = null;
-
-    try {
-      priceData = await fetchTimeSeries(stock.ticker, 90);
-      if (priceData && priceData.length >= 20) {
-        hasValidData = true;
-        validCount++;
-        latestPrice = priceData[priceData.length - 1].close;
+    const cacheKey = `cache_ts_${stock.ticker}`;
+    const cachedItem = sessionStorage.getItem(cacheKey);
+    if (cachedItem) {
+      try {
+        const parsed = JSON.parse(cachedItem);
+        if (parsed && parsed.timestamp && (Date.now() - parsed.timestamp < 15 * 60 * 1000)) {
+          stockResultsMap.set(stock.ticker, { priceData: parsed.data, cached: true });
+          cachedCount++;
+          continue;
+        }
+      } catch {
+        // invalid cache
       }
-    } catch (e) {
-      console.warn(`Failed to fetch history for ${stock.ticker}:`, e);
     }
+    uncachedStocks.push(stock);
+  }
+
+  const batchSize = 8;
+  for (let i = 0; i < uncachedStocks.length; i += batchSize) {
+    const batch = uncachedStocks.slice(i, i + batchSize);
+    coverageText.textContent = `Loading ${loadedCount + cachedCount + batch.length} of 20 (${cachedCount} cached)...`;
+
+    for (const stock of batch) {
+      let success = false;
+      let retries = 2;
+      while (retries > 0 && !success) {
+        try {
+          const priceData = await fetchTimeSeries(stock.ticker, 90);
+          if (priceData && priceData.length >= 20) {
+            stockResultsMap.set(stock.ticker, { priceData, cached: false });
+            sessionStorage.setItem(`cache_ts_${stock.ticker}`, JSON.stringify({ data: priceData, timestamp: Date.now() }));
+            loadedCount++;
+            success = true;
+          } else {
+            throw new Error('Insufficient historical bars');
+          }
+        } catch (err) {
+          const isRateLimit = err.message.includes('429') || err.message.includes('limit') || err.message.includes('credits');
+          if (isRateLimit && retries > 1) {
+            coverageText.textContent = `Rate limit (429) on ${stock.ticker} — waiting 15s for quota reset...`;
+            await new Promise(r => setTimeout(r, 15000));
+            retries--;
+          } else {
+            stockResultsMap.set(stock.ticker, { priceData: [], cached: false, error: err.message });
+            errorCount++;
+            success = true;
+          }
+        }
+      }
+    }
+
+    if (i + batchSize < uncachedStocks.length) {
+      coverageText.textContent = `Quota pause — waiting 12s before next batch...`;
+      await new Promise(r => setTimeout(r, 12000));
+    }
+  }
+
+  for (const stock of PORTFOLIO_UNIVERSE) {
+    const res = stockResultsMap.get(stock.ticker) || { priceData: [], cached: false };
+    const priceData = res.priceData;
+    const hasValidData = priceData && priceData.length >= 20;
+    const latestPrice = hasValidData ? priceData[priceData.length - 1].close : null;
 
     const techResult = calculateTechnicalScore(priceData);
     const annVol = techResult.metrics?.annualizedVolatility || 0.3;
-
-    // Check sessionStorage for cached text result
-    let textResult = { available: false, score: null };
-    const cachedText = sessionStorage.getItem(`cache_text_${stock.ticker}`);
-    if (cachedText) {
-      try {
-        textResult = JSON.parse(cachedText);
-        if (textResult.sourcesUsed) {
-          allSources.push(...textResult.sourcesUsed);
-        }
-      } catch {
-        // ignore
-      }
-    }
-
+    const textResult = { available: false, score: 50 };
     const compositeResult = calculateCompositeScore(techResult.score, textResult);
 
     scoredStocks.push({
@@ -298,175 +319,90 @@ async function loadPortfolioData(container) {
       latestPrice,
       technicalScore: hasValidData ? techResult.score : null,
       textResult,
-      compositeScore: hasValidData ? compositeResult.compositeScore : null,
-      signalLabel: hasValidData ? compositeResult.signalLabel : 'N/A',
+      compositeScore: compositeResult.compositeScore,
       annualizedVolatility: annVol,
+      signalLabel: compositeResult.signalLabel,
       hasValidData
     });
   }
 
   const portfolioWeights = calculatePortfolioWeights(scoredStocks);
-
   renderPortfolioTable(container, scoredStocks, portfolioWeights);
 
-  coverageText.textContent = `${validCount} / 20 Equities Active`;
+  const activeCount = scoredStocks.filter(s => s.hasValidData).length;
+  coverageText.textContent = `${activeCount} loaded (${cachedCount} cached, ${errorCount} errors)`;
   refreshTime.textContent = new Date().toLocaleTimeString();
-
-  // Update evidence section if sources exist
-  if (allSources.length > 0) {
-    const evContainer = container.querySelector('#auditable-evidence-container');
-    const evContent = container.querySelector('#evidence-list-content');
-    evContainer.style.display = 'block';
-    evContent.innerHTML = allSources.map(s => `
-      <div style="padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <strong>${escapeHTML(s.title || 'Source')}</strong> (${escapeHTML(s.date || 'Recent')}) — 
-        <a href="${sanitizeUrl(s.url)}" target="_blank" style="color: #60a5fa; text-decoration: underline;">${escapeHTML(s.url)}</a>
-      </div>
-    `).join('');
-  }
+  if (refreshBtn) refreshBtn.disabled = false;
 
   window.__lastPortfolioReviewSurface = {
-    strategyCapital: STRATEGY_CAPITAL,
-    validEquitiesCount: validCount,
-    cashAllocation: portfolioWeights.cashAllocation,
-    timestamp: new Date().toISOString(),
-    allocations: portfolioWeights.allocations,
-    scoredStocks
+    strategy_capital: STRATEGY_CAPITAL,
+    active_positions: activeCount,
+    cash_allocation_pct: (portfolioWeights.cashAllocation * 100).toFixed(2),
+    cash_usd_allocation: portfolioWeights.cashUsdAllocation,
+    allocations: portfolioWeights.allocations
   };
-}
-
-async function runTextSignalPipeline(container) {
-  const orKey = getOpenRouterKey();
-  if (!orKey) {
-    alert('OpenRouter API key required to refresh text signals.');
-    return;
-  }
-
-  const progressEl = container.querySelector('#text-pipeline-progress');
-  progressEl.style.display = 'block';
-  progressEl.textContent = 'Initializing OpenRouter text research pipeline across 20 equities...';
-
-  let analyzedCount = 0;
-  const allSources = [];
-
-  for (const stock of PORTFOLIO_UNIVERSE) {
-    analyzedCount++;
-    progressEl.textContent = `Analyzing company ${analyzedCount} of 20: ${stock.ticker} (${stock.name})...`;
-
-    try {
-      const researchText = await fetchTextResearch(stock.ticker, stock.name);
-      const extraction = await extractStructuredSentiment(researchText, stock.ticker);
-
-      const posPhrases = extraction.positive_phrases || [];
-      const negPhrases = extraction.negative_phrases || [];
-      const evidenceSum = extraction.evidence_summary || researchText;
-      const sources = extraction.sources || [];
-
-      // JavaScript calculates positive_count, negative_count, source_word_count, sentiment_density, textScore
-      const positive_count = posPhrases.reduce((acc, p) => acc + p.split(/\s+/).length, posPhrases.length);
-      const negative_count = negPhrases.reduce((acc, p) => acc + p.split(/\s+/).length, negPhrases.length);
-      const source_word_count = evidenceSum.split(/\s+/).length;
-
-      const density = (positive_count - negative_count) / Math.max(source_word_count, 1);
-      const textScoreObj = calculateTextScore({
-        available: true,
-        positive_count,
-        negative_count,
-        source_word_count,
-        sourcesUsed: sources
-      });
-
-      const textResult = {
-        available: true,
-        score: textScoreObj.score,
-        density,
-        label: textScoreObj.label,
-        positive_count,
-        negative_count,
-        evidenceSummary: evidenceSum,
-        sourcesUsed: sources
-      };
-
-      sessionStorage.setItem(`cache_text_${stock.ticker}`, JSON.stringify(textResult));
-      allSources.push(...sources);
-    } catch (e) {
-      console.warn(`Text analysis failed for ${stock.ticker}:`, e);
-      // Failure for one company must not stop the remaining companies
-    }
-  }
-
-  progressEl.textContent = 'Text signal extraction complete. Recalculating portfolio weights...';
-  setTimeout(() => {
-    progressEl.style.display = 'none';
-    loadPortfolioData(container);
-  }, 1000);
 }
 
 function renderPortfolioTable(container, scoredStocks, portfolioWeights) {
   const tbody = container.querySelector('#portfolio-table-body');
+  if (!tbody) return;
+
   tbody.innerHTML = '';
 
+  const allocMap = new Map();
+  portfolioWeights.allocations.forEach(a => allocMap.set(a.ticker, a));
+
   scoredStocks.forEach(stock => {
-    const alloc = portfolioWeights.allocations.find(a => a.ticker === stock.ticker);
-    const weightPct = ((alloc?.weight || 0) * 100).toFixed(2) + '%';
-    const usdAlloc = '$' + (alloc?.usdAllocation || 0).toLocaleString();
+    const alloc = allocMap.get(stock.ticker) || { weight: 0, usdAllocation: 0 };
     const isCore = stock.core;
-
-    const priceDisplay = stock.latestPrice !== null ? '$' + stock.latestPrice.toFixed(2) : 'N/A';
-    const techDisplay = stock.technicalScore !== null ? stock.technicalScore : 'N/A';
-    const compDisplay = stock.compositeScore !== null ? stock.compositeScore : 'N/A';
-    const textLabel = stock.textResult?.available ? stock.textResult.label : 'Insufficient Data';
-
     const tr = document.createElement('tr');
     tr.style.cssText = 'border-bottom: 1px solid rgba(255,255,255,0.06); transition: background 0.2s;';
+
+    const signalColor = stock.signalLabel === 'OVERWEIGHT' ? '#34d399' : (stock.signalLabel === 'UNDERWEIGHT' ? '#f87171' : '#facc15');
+    const signalBg = stock.signalLabel === 'OVERWEIGHT' ? 'rgba(16, 185, 129, 0.2)' : (stock.signalLabel === 'UNDERWEIGHT' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 179, 8, 0.2)');
+
     tr.innerHTML = `
       <td style="padding: 0.75rem;">
         <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; background: ${isCore ? 'rgba(59, 130, 246, 0.2)' : 'rgba(100, 116, 139, 0.2)'}; color: ${isCore ? '#60a5fa' : '#94a3b8'};">
-          ${isCore ? 'CORE THESIS' : 'SATELLITE'}
+          ${isCore ? 'CORE' : 'SATELLITE'}
         </span>
       </td>
-      <td style="padding: 0.75rem; font-weight: 700; color: #f8fafc;">${stock.ticker}</td>
-      <td style="padding: 0.75rem;">
-        <div style="font-weight: 600; color: #e2e8f0;">${escapeHTML(stock.name)}</div>
+      <td style="padding: 0.75rem; font-weight: 700; color: #f8fafc;">${escapeHTML(stock.ticker)}</td>
+      <td style="padding: 0.75rem; color: #cbd5e1;">
+        <div style="font-weight: 600;">${escapeHTML(stock.name)}</div>
         <div style="font-size: 0.75rem; color: #94a3b8;">${escapeHTML(stock.role)}</div>
       </td>
-      <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #f8fafc;">${priceDisplay}</td>
-      <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #38bdf8;">${techDisplay}</td>
+      <td style="padding: 0.75rem; text-align: right; color: #f8fafc; font-family: monospace;">${stock.latestPrice ? '$' + stock.latestPrice.toFixed(2) : 'N/A'}</td>
+      <td style="padding: 0.75rem; text-align: right; color: #f8fafc; font-family: monospace;">${stock.technicalScore !== null ? stock.technicalScore.toFixed(1) : 'N/A'}</td>
+      <td style="padding: 0.75rem; text-align: center; color: #93c5fd; font-family: monospace;">${stock.textResult.available ? stock.textResult.score.toFixed(1) : 'N/A'}</td>
+      <td style="padding: 0.75rem; text-align: right; color: #f8fafc; font-weight: 600; font-family: monospace;">${stock.hasValidData ? stock.compositeScore.toFixed(1) : 'N/A'}</td>
       <td style="padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.75rem; color: ${textLabel === 'POSITIVE' ? '#34d399' : (textLabel === 'NEGATIVE' ? '#f87171' : '#cbd5e1')}; font-weight: 600;">
-          ${textLabel}
+        <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: ${signalBg}; color: ${signalColor};">
+          ${stock.hasValidData ? stock.signalLabel : 'UNAVAILABLE'}
         </span>
       </td>
-      <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #f8fafc;">${compDisplay}</td>
-      <td style="padding: 0.75rem; text-align: center;">
-        <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700; background: ${stock.signalLabel === 'OVERWEIGHT' ? 'rgba(16, 185, 129, 0.2)' : (stock.signalLabel === 'UNDERWEIGHT' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 179, 8, 0.2)')}; color: ${stock.signalLabel === 'OVERWEIGHT' ? '#34d399' : (stock.signalLabel === 'UNDERWEIGHT' ? '#f87171' : '#facc15')};">
-          ${stock.signalLabel}
-        </span>
-      </td>
-      <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #f8fafc;">${weightPct}</td>
-      <td style="padding: 0.75rem; text-align: right; font-family: monospace; font-weight: 700; color: #34d399;">${usdAlloc}</td>
+      <td style="padding: 0.75rem; text-align: right; color: #f8fafc; font-family: monospace;">${(alloc.weight * 100).toFixed(2)}%</td>
+      <th style="padding: 0.75rem; text-align: right; color: #34d399; font-family: monospace; font-weight: 600;">USD ${alloc.usdAllocation.toLocaleString()}</th>
     `;
     tbody.appendChild(tr);
   });
 
-  // Add Visible CASH Row
-  const cashWeightPct = (portfolioWeights.cashAllocation * 100).toFixed(2) + '%';
-  const cashUsdAlloc = '$' + Math.round(portfolioWeights.cashAllocation * STRATEGY_CAPITAL).toLocaleString();
+  // Cash Row
   const cashTr = document.createElement('tr');
   cashTr.style.cssText = 'background: rgba(16, 185, 129, 0.08); border-top: 2px solid rgba(16, 185, 129, 0.3); font-weight: 700;';
   cashTr.innerHTML = `
-    <td style="padding: 0.75rem;">
+    <td style="padding: 0.85rem;">
       <span style="font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(16, 185, 129, 0.2); color: #34d399;">CASH BUFFER</span>
     </td>
-    <td style="padding: 0.75rem; color: #34d399;">USD</td>
-    <td style="padding: 0.75rem; color: #f8fafc;">Uninvested Cash & Missing Data Reserve</td>
-    <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #34d399;">$1.00</td>
-    <td style="padding: 0.75rem; text-align: right;">-</td>
-    <td style="padding: 0.75rem; text-align: center;">-</td>
-    <td style="padding: 0.75rem; text-align: right;">-</td>
-    <td style="padding: 0.75rem; text-align: center;">LIQUID</td>
-    <td style="padding: 0.75rem; text-align: right; color: #34d399;">${cashWeightPct}</td>
-    <td style="padding: 0.75rem; text-align: right; font-family: monospace; color: #34d399;">${cashUsdAlloc}</td>
+    <td style="padding: 0.85rem; color: #f8fafc;">CASH</td>
+    <td style="padding: 0.85rem; color: #cbd5e1;">Risk-free liquidity reserve & unallocated weight</td>
+    <td style="padding: 0.85rem; text-align: right; color: #f8fafc;">$1.00</td>
+    <td style="padding: 0.85rem; text-align: right; color: #94a3b8;">N/A</td>
+    <td style="padding: 0.85rem; text-align: center; color: #94a3b8;">N/A</td>
+    <td style="padding: 0.85rem; text-align: right; color: #94a3b8;">N/A</td>
+    <td style="padding: 0.85rem; text-align: center; color: #34d399;">LIQUID</td>
+    <td style="padding: 0.85rem; text-align: right; color: #f8fafc; font-family: monospace;">${(portfolioWeights.cashAllocation * 100).toFixed(2)}%</td>
+    <th style="padding: 0.85rem; text-align: right; color: #34d399; font-family: monospace; font-weight: 700;">USD ${portfolioWeights.cashUsdAllocation.toLocaleString()}</th>
   `;
   tbody.appendChild(cashTr);
 }

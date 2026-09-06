@@ -79,11 +79,11 @@ export function calculatePortfolioWeights(scoredStocks) {
     if (maxStock) maxStock.weight += diff;
   }
 
-  // Calculate USD allocations summing to USD 1,000,000 within USD 1
-  let allocatedUsdSum = 0;
+  // Calculate USD allocations summing to USD 1,000,000 exactly (equities + cash)
+  let equityUsdTotal = 0;
   const resultAllocations = weightsArray.map(w => {
     const usd = Math.round(w.weight * STRATEGY_CAPITAL);
-    allocatedUsdSum += usd;
+    equityUsdTotal += usd;
     return {
       ticker: w.ticker,
       weight: w.weight,
@@ -91,16 +91,20 @@ export function calculatePortfolioWeights(scoredStocks) {
     };
   });
 
-  const usdDiff = STRATEGY_CAPITAL - allocatedUsdSum;
-  if (usdDiff !== 0 && resultAllocations.length > 0) {
-    let largest = resultAllocations.reduce((prev, curr) => (curr.usdAllocation > prev.usdAllocation) ? curr : prev);
-    largest.usdAllocation += usdDiff;
+  let cashUsd = Math.round(cashAllocation * STRATEGY_CAPITAL);
+  let combinedUsd = equityUsdTotal + cashUsd;
+  let roundingRemainder = STRATEGY_CAPITAL - combinedUsd;
+  if (roundingRemainder !== 0) {
+    cashUsd += roundingRemainder;
   }
+
+  const totalCheckUsd = equityUsdTotal + cashUsd;
 
   return {
     allocations: resultAllocations,
     cashAllocation,
-    totalCheckUsd: resultAllocations.reduce((acc, r) => acc + r.usdAllocation, 0),
+    cashUsdAllocation: cashUsd,
+    totalCheckUsd,
     totalCheckWeight: resultAllocations.reduce((acc, r) => acc + r.weight, 0) + cashAllocation
   };
 }

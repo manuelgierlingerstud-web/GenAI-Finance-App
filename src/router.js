@@ -4,10 +4,9 @@
 import { renderPortfolioView } from './views/portfolioView.js';
 import { renderAnalysisView } from './views/analysisView.js';
 
-export function initRouter(currentLang = 'en') {
+export function initRouter() {
   const handleRoute = async () => {
     const hash = window.location.hash || '#/analysis';
-    const analysisSection = document.querySelector('.app-main > section:first-of-type').parentElement; // main container or sections
     const mainEl = document.querySelector('main.app-main');
 
     // Check if portfolio container exists or create it
@@ -25,7 +24,7 @@ export function initRouter(currentLang = 'en') {
     if (hash === '#/portfolio') {
       analysisPanels.forEach(p => p.style.display = 'none');
       portfolioContainer.style.display = 'block';
-      await renderPortfolioView(portfolioContainer, currentLang);
+      await renderPortfolioView(portfolioContainer);
       updateNavActiveState('#nav-portfolio-btn');
     } else {
       portfolioContainer.style.display = 'none';

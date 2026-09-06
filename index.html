@@ -35,15 +35,9 @@
           <a href="#/portfolio" id="nav-portfolio-btn" style="padding: 0.45rem 0.9rem; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; border-radius: 6px; font-weight: 600; font-size: 0.85rem; text-decoration: none;">Portfolio Dashboard</a>
         </nav>
 
-        <!-- Language Switcher Button -->
-        <button type="button" id="lang-toggle-btn" class="lang-toggle-btn" title="Switch Language / Sprache wechseln">
-          <span class="lang-flag" id="lang-flag">🇩🇪</span>
-          <span class="lang-text" id="lang-text">DE</span>
-        </button>
-
-        <div class="status-badge checking" id="status-badge" title="Checking backend API keys...">
+        <div class="status-badge error" id="status-badge" title="API keys missing. Click to configure.">
           <span class="status-dot"></span>
-          <span class="status-text" id="status-text">CHECKING BACKEND...</span>
+          <span class="status-text" id="status-text">KEYS MISSING (0/2)</span>
         </div>
       </div>
     </div>
@@ -141,7 +135,7 @@
               Twelve Data API Key
               <span class="kpi-info-icon" data-tooltip="Required for fetching official OHLCV market data. Free key grants 800 API calls/day.">ⓘ</span>
             </label>
-            <span id="twelvedata-backend-status" class="backend-status-tag">Checking...</span>
+            <span id="twelvedata-backend-status" class="backend-status-tag">Required</span>
           </div>
           <input id="twelvedata-key" name="twelvedata-key" type="password" placeholder="Twelve Data API Key" />
           <p class="field-hint">Free US market data & ETFs. Get key at <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener">twelvedata.com</a></p>
@@ -151,9 +145,9 @@
           <div class="label-row">
             <label for="openrouter-key">
               OpenRouter API Key
-              <span class="kpi-info-icon" data-tooltip="Powers the Senior Equity Strategist model analysis across 6 quantitative dimensions via Anthropic Claude 3.5 Sonnet.">ⓘ</span>
+              <span class="kpi-info-icon" data-tooltip="Powers the Senior Equity Strategist model analysis across 6 quantitative dimensions via Anthropic Claude Sonnet 5.">ⓘ</span>
             </label>
-            <span id="openrouter-backend-status" class="backend-status-tag">Checking...</span>
+            <span id="openrouter-backend-status" class="backend-status-tag">Required</span>
           </div>
           <input id="openrouter-key" name="openrouter-key" type="password" placeholder="sk-or-v1-..." />
           <p class="field-hint">Powers LLM quant synthesis. Get key at <a href="https://openrouter.ai" target="_blank" rel="noopener">openrouter.ai</a></p>

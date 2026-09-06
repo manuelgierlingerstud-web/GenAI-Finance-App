@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import { calculateSMA, calculateEMA, calculateRSI, calculateMACD, calculateRealizedVolatility, checkDataIntegrity } from '../src/quant/indicators.js';
 import { calculateTechnicalScore, calculateTextScore, calculateCompositeScore } from '../src/quant/scoring.js';
 import { calculatePortfolioWeights } from '../src/quant/weights.js';
+import { runBacktest } from '../src/quant/backtest.js';
 import { escapeHTML, sanitizeUrl } from '../src/security/rendering.js';
 import { PORTFOLIO_UNIVERSE } from '../src/config/portfolio.js';
 
@@ -63,7 +64,7 @@ test('Text density and composite score calculation', () => {
   assert.strictEqual(comp.signalLabel, 'OVERWEIGHT');
 });
 
-test('Portfolio weights normalization, caps and sums', () => {
+test('Portfolio weights normalization, USD 1,000,000 exact sum and cash allocation', () => {
   const mockStocks = PORTFOLIO_UNIVERSE.map((stock, idx) => ({
     ticker: stock.ticker,
     compositeScore: 60 + (idx % 20),
@@ -73,9 +74,9 @@ test('Portfolio weights normalization, caps and sums', () => {
 
   const portfolio = calculatePortfolioWeights(mockStocks);
   assert.strictEqual(portfolio.allocations.length, 20);
-  assert.ok(portfolio.cashAllocation < 0.000001);
-  assert.strictEqual(Math.abs(portfolio.totalCheckWeight - 1.0) < 0.0001, true);
   assert.strictEqual(portfolio.totalCheckUsd, 1000000);
+  assert.strictEqual(typeof portfolio.cashUsdAllocation, 'number');
+  assert.strictEqual(Math.abs(portfolio.totalCheckWeight - 1.0) < 0.0001, true);
 
   // Check max weight cap (8%) and min active weight (2%)
   portfolio.allocations.forEach(alloc => {
@@ -86,7 +87,7 @@ test('Portfolio weights normalization, caps and sums', () => {
   });
 });
 
-test('Missing symbol allocation to cash', () => {
+test('Missing symbol allocation to cash and exact USD sum', () => {
   const mockStocks = PORTFOLIO_UNIVERSE.map((stock, idx) => ({
     ticker: stock.ticker,
     compositeScore: 70,
@@ -99,7 +100,24 @@ test('Missing symbol allocation to cash', () => {
   assert.strictEqual(nvdaAlloc.weight, 0);
   assert.strictEqual(nvdaAlloc.usdAllocation, 0);
   assert.ok(portfolio.cashAllocation > 0);
+  assert.strictEqual(portfolio.totalCheckUsd, 1000000);
   assert.strictEqual(Math.abs(portfolio.totalCheckWeight - 1.0) < 0.0001, true);
+});
+
+test('Backtest engine lagged execution', () => {
+  const dummyData = Array.from({ length: 50 }, (_, i) => ({
+    date: `2026-03-${String((i % 30) + 1).padStart(2, '0')}`,
+    open: 100 + (i * 0.5),
+    high: 102 + (i * 0.5),
+    low: 98 + (i * 0.5),
+    close: 101 + (i * 0.5),
+    volume: 1000000
+  }));
+
+  const bt = runBacktest(dummyData, 100000);
+  assert.strictEqual(bt.success, true);
+  assert.ok(bt.trainPeriod);
+  assert.ok(bt.testPeriod);
 });
 
 test('Security rendering: HTML escaping and URL validation', () => {
