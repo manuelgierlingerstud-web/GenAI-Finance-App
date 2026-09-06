@@ -180,7 +180,7 @@ function setupPortfolioLogic(container, currentLang) {
       alert('OpenRouter API key required to generate executive commentary.');
       return;
     }
-    generateCommentaryBtn.textContent = 'Generating Commentary via Claude 3.5 Sonnet...';
+    generateCommentaryBtn.textContent = 'Generating Commentary via Claude Sonnet 5...';
     generateCommentaryBtn.disabled = true;
 
     try {

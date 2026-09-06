@@ -93,7 +93,7 @@ export async function extractStructuredSentiment(researchText, ticker) {
       'X-Title': 'GenAI Finance Terminal'
     },
     body: JSON.stringify({
-      model: 'anthropic/claude-3.5-sonnet',
+      model: 'anthropic/claude-sonnet-5',
       messages: [
         {
           role: 'system',
@@ -182,7 +182,7 @@ export async function generateExecutiveCommentary(reviewSurface) {
       'X-Title': 'GenAI Finance Terminal'
     },
     body: JSON.stringify({
-      model: 'anthropic/claude-3.5-sonnet',
+      model: 'anthropic/claude-sonnet-5',
       messages: [
         {
           role: 'system',
